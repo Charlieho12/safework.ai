@@ -13,6 +13,8 @@ export interface PaymentInfo {
   date: string;
   status: 'active' | 'cancelled' | 'trial';
   trialEndDate?: string;
+  currentPeriodEnd?: string;
+  stripeSessionId?: string;
   userId: string;
 }
 

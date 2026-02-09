@@ -17,7 +17,7 @@ import {
   AlertTriangle,
   ExternalLink
 } from 'lucide-react';
-import { PLANS, createCheckoutSession, mockCreateCheckoutSession } from '@/lib/stripe';
+import { PLANS, createCheckoutSession } from '@/lib/stripe';
 import type { PlanId } from '@/lib/stripe';
 
 export default function CheckoutPage() {
