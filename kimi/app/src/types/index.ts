@@ -104,6 +104,7 @@ export interface UpdateLavoroDTO {
   nome_progetto?: string;
   descrizione?: string;
   stato?: StatoLavoro;
+  immagini_count?: number;
 }
 
 // Dati per creazione immagine
