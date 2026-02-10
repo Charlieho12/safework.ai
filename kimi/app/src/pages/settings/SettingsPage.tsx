@@ -1,0 +1,312 @@
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Bell, 
+  Lock, 
+  Globe, 
+  Moon, 
+  Shield, 
+  Check,
+  Loader2,
+  AlertTriangle
+} from 'lucide-react';
+
+export default function SettingsPage() {
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  
+  const [settings, setSettings] = useState({
+    notifications: {
+      email: true,
+      push: false,
+      updates: true,
+      newsletter: false,
+    },
+    preferences: {
+      darkMode: false,
+      language: 'it',
+      autoSave: true,
+    },
+    security: {
+      twoFactor: false,
+      sessionTimeout: '30',
+    }
+  });
+
+  const handleSave = async (section: string) => {
+    setIsLoading(true);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    setSuccess(`${section} aggiornati con successo!`);
+    setIsLoading(false);
+    
+    setTimeout(() => setSuccess(null), 3000);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">Impostazioni</h1>
+        <p className="text-slate-500 mt-1">
+          Gestisci le preferenze e le impostazioni del tuo account
+        </p>
+      </div>
+
+      {success && (
+        <Alert className="bg-green-50 border-green-200">
+          <Check className="w-4 h-4 text-green-600" />
+          <AlertDescription className="text-green-700">
+            {success}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <div className="space-y-6">
+        {/* Notifications */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Bell className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <CardTitle>Notifiche</CardTitle>
+                <CardDescription>
+                  Scegli come ricevere le notifiche
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Notifiche Email</Label>
+                <p className="text-sm text-slate-500">
+                  Ricevi aggiornamenti via email
+                </p>
+              </div>
+              <Switch 
+                checked={settings.notifications.email}
+                onCheckedChange={(checked) => 
+                  setSettings({ ...settings, notifications: { ...settings.notifications, email: checked }})
+                }
+              />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Notifiche Push</Label>
+                <p className="text-sm text-slate-500">
+                  Ricevi notifiche nel browser
+                </p>
+              </div>
+              <Switch 
+                checked={settings.notifications.push}
+                onCheckedChange={(checked) => 
+                  setSettings({ ...settings, notifications: { ...settings.notifications, push: checked }})
+                }
+              />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Aggiornamenti Prodotto</Label>
+                <p className="text-sm text-slate-500">
+                  Novità e funzionalità di SafeWork AI
+                </p>
+              </div>
+              <Switch 
+                checked={settings.notifications.updates}
+                onCheckedChange={(checked) => 
+                  setSettings({ ...settings, notifications: { ...settings.notifications, updates: checked }})
+                }
+              />
+            </div>
+            <div className="pt-4">
+              <Button 
+                onClick={() => handleSave('Notifiche')} 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Salvataggio...
+                  </>
+                ) : (
+                  'Salva Preferenze'
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Security */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                <Lock className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <CardTitle>Sicurezza</CardTitle>
+                <CardDescription>
+                  Gestisci la sicurezza del tuo account
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Autenticazione a Due Fattori</Label>
+                <p className="text-sm text-slate-500">
+                  Aggiungi un livello di sicurezza extra
+                </p>
+              </div>
+              <Switch 
+                checked={settings.security.twoFactor}
+                onCheckedChange={(checked) => 
+                  setSettings({ ...settings, security: { ...settings.security, twoFactor: checked }})
+                }
+              />
+            </div>
+            <Separator />
+            <div className="space-y-2">
+              <Label>Timeout Sessione (minuti)</Label>
+              <Input 
+                type="number" 
+                value={settings.security.sessionTimeout}
+                onChange={(e) => 
+                  setSettings({ ...settings, security: { ...settings.security, sessionTimeout: e.target.value }})
+                }
+                className="w-32"
+              />
+            </div>
+            <div className="pt-4">
+              <Button 
+                onClick={() => handleSave('Impostazioni sicurezza')} 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Salvataggio...
+                  </>
+                ) : (
+                  'Salva Impostazioni'
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Preferences */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Globe className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <CardTitle>Preferenze</CardTitle>
+                <CardDescription>
+                  Personalizza la tua esperienza
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <Moon className="w-4 h-4" />
+                  <Label>Modalità Scura</Label>
+                </div>
+                <p className="text-sm text-slate-500">
+                  Tema scuro per l'interfaccia
+                </p>
+              </div>
+              <Switch 
+                checked={settings.preferences.darkMode}
+                onCheckedChange={(checked) => 
+                  setSettings({ ...settings, preferences: { ...settings.preferences, darkMode: checked }})
+                }
+              />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Salvataggio Automatico</Label>
+                <p className="text-sm text-slate-500">
+                  Salva automaticamente i lavori
+                </p>
+              </div>
+              <Switch 
+                checked={settings.preferences.autoSave}
+                onCheckedChange={(checked) => 
+                  setSettings({ ...settings, preferences: { ...settings.preferences, autoSave: checked }})
+                }
+              />
+            </div>
+            <div className="pt-4">
+              <Button 
+                onClick={() => handleSave('Preferenze')} 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Salvataggio...
+                  </>
+                ) : (
+                  'Salva Preferenze'
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Danger Zone */}
+        <Card className="border-red-200">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <CardTitle className="text-red-600">Zona Pericolosa</CardTitle>
+                <CardDescription>
+                  Azioni irreversibili per il tuo account
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Elimina Account</h4>
+                <p className="text-sm text-slate-500">
+                  Elimina permanentemente il tuo account e tutti i dati
+                </p>
+              </div>
+              <Button variant="destructive">
+                Elimina Account
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

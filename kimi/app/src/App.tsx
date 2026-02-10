@@ -33,6 +33,10 @@ import ReportPage from '@/pages/report/ReportPage';
 // CSTA Page
 import CstaPage from '@/pages/csta/CstaPage';
 
+// Profile & Settings Pages
+import ProfilePage from '@/pages/profile/ProfilePage';
+import SettingsPage from '@/pages/settings/SettingsPage';
+
 // Payment Pages
 import CheckoutSuccessPage from '@/pages/payment/CheckoutSuccessPage';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -155,8 +159,8 @@ function AppRoutes() {
         <Route path="csta" element={<CstaPage />} />
         
         {/* Profile & Settings */}
-        <Route path="profile" element={<DashboardPage />} />
-        <Route path="settings" element={<DashboardPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
 
       {/* Fallback */}
