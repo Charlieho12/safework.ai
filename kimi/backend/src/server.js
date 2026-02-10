@@ -90,7 +90,7 @@ app.post('/api/auth/register', async (req, res) => {
         email,
         nome_completo,
         azienda_id: azienda.id,
-        ruolo: 'admin'
+        ruolo: 'consulente'
       }]);
     
     if (profileError) {
@@ -144,7 +144,7 @@ app.post('/api/auth/login', async (req, res) => {
         user: { 
           ...data.user, 
           nome_completo: data.user.user_metadata?.nome_completo || email,
-          ruolo: 'admin'
+          ruolo: 'consulente'
         },
         session: data.session
       });

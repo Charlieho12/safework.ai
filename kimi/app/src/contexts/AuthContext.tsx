@@ -151,7 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: data.user.email,
         nome_completo: data.user.nome_completo || data.user.user_metadata?.nome_completo || email,
         azienda_id: data.user.azienda_id,
-        ruolo: data.user.ruolo || 'admin',
+        ruolo: data.user.ruolo || 'consulente',
         created_at: data.user.created_at || new Date().toISOString()
       };
 
