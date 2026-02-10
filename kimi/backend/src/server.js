@@ -288,6 +288,31 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
+// Verify checkout session
+app.get('/api/verify-checkout-session', async (req, res) => {
+  try {
+    const { sessionId } = req.query;
+    
+    if (!sessionId) {
+      return res.status(400).json({ error: 'Session ID required' });
+    }
+    
+    // Retrieve session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    
+    res.json({
+      success: session.payment_status === 'paid',
+      status: session.payment_status,
+      plan: session.metadata?.planId,
+      customerId: session.customer,
+      subscriptionId: session.subscription
+    });
+  } catch (error) {
+    console.error('Verify session error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Webhook for Stripe events
 app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];

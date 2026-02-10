@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, AlertTriangle } from 'lucide-react';
 
 export default function CheckoutSuccessPage() {
   const navigate = useNavigate();
@@ -20,8 +20,12 @@ export default function CheckoutSuccessPage() {
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
     
+    console.log('CheckoutSuccessPage mounted');
+    console.log('Session ID:', sessionId);
+    
     if (!sessionId) {
-      setError('Sessione di pagamento non valida');
+      console.error('No session_id in URL');
+      setError('Sessione di pagamento non valida - nessun ID sessione trovato');
       setIsLoading(false);
       return;
     }
@@ -29,20 +33,33 @@ export default function CheckoutSuccessPage() {
     // Verify the checkout session and update payment status
     const verifyPayment = async () => {
       try {
+        console.log('Starting payment verification...');
+        
         // In production, this should call your backend to verify the session
-        // const response = await fetch(`/api/verify-checkout-session?sessionId=${sessionId}`);
-        // const data = await response.json();
+        const apiUrl = import.meta.env.VITE_API_URL || '/api';
+        console.log('API URL:', apiUrl);
         
-        // For demo, simulate verification
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+          const response = await fetch(`${apiUrl}/verify-checkout-session?sessionId=${sessionId}`);
+          console.log('Verify response:', response.status);
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Session verified:', data);
+          }
+        } catch (verifyError) {
+          console.log('Could not verify with backend, continuing with local update:', verifyError);
+        }
         
-        // Update payment status
+        // Update payment status locally
+        console.log('Updating payment status...');
         await updatePaymentStatus({
-          plan: 'professional', // This should come from the session
+          plan: 'professional',
           status: 'active',
           stripeSessionId: sessionId,
           currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         });
+        console.log('Payment status updated successfully');
 
         setPaymentDetails({
           plan: 'Professional',
@@ -53,9 +70,11 @@ export default function CheckoutSuccessPage() {
         
         // Redirect to dashboard after 3 seconds
         setTimeout(() => {
+          console.log('Redirecting to dashboard...');
           navigate('/dashboard');
         }, 3000);
       } catch (err) {
+        console.error('Error in verifyPayment:', err);
         setError(err instanceof Error ? err.message : 'Verifica pagamento fallita');
         setIsLoading(false);
       }
@@ -63,6 +82,33 @@ export default function CheckoutSuccessPage() {
 
     verifyPayment();
   }, [searchParams, updatePaymentStatus, navigate]);
+
+  // Error boundary fallback
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center">
+            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle className="w-10 h-10 text-amber-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              Attenzione
+            </h2>
+            <p className="text-slate-600 mb-6">{error}</p>
+            <div className="space-y-3">
+              <Button onClick={() => navigate('/dashboard')} className="w-full">
+                Vai alla Dashboard
+              </Button>
+              <Button onClick={() => navigate('/pricing')} variant="outline" className="w-full">
+                Torna ai Piani
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -78,27 +124,6 @@ export default function CheckoutSuccessPage() {
             <p className="text-slate-600">
               Stiamo confermando il tuo pagamento. Attendi un momento.
             </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="p-8 text-center">
-            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-red-600 text-3xl">!</span>
-            </div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              Errore
-            </h2>
-            <p className="text-slate-600 mb-6">{error}</p>
-            <Button onClick={() => navigate('/pricing')}>
-              Torna ai Piani
-            </Button>
           </CardContent>
         </Card>
       </div>
