@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,14 +11,12 @@ import {
   Lock, 
   Globe, 
   Moon, 
-  Shield, 
   Check,
   Loader2,
   AlertTriangle
 } from 'lucide-react';
 
 export default function SettingsPage() {
-  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   
