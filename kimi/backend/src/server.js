@@ -35,14 +35,16 @@ app.post('/api/auth/register', async (req, res) => {
     
     console.log('Registering user:', email);
     
-    // Create user in Supabase Auth using admin API (skips email confirmation)
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    // Step 1: Create user in Supabase Auth (this sends email confirmation by default)
+    // We need to disable email confirmation in Supabase Dashboard or use a workaround
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      email_confirm: true, // Auto-confirm email (skip SMTP)
-      user_metadata: {
-        nome_completo,
-        azienda_nome
+      options: {
+        data: {
+          nome_completo,
+          azienda_nome
+        }
       }
     });
     
@@ -53,7 +55,20 @@ app.post('/api/auth/register', async (req, res) => {
     
     console.log('User created:', authData.user.id);
     
-    // Create azienda
+    // Step 2: Immediately confirm the email using admin API
+    if (authData.user) {
+      const { error: updateError } = await supabase.auth.admin.updateUserById(
+        authData.user.id,
+        { email_confirm: true }
+      );
+      
+      if (updateError) {
+        console.error('Error confirming email:', updateError);
+        // Continue anyway, user is created
+      }
+    }
+    
+    // Step 3: Create azienda
     const { data: azienda, error: aziendaError } = await supabase
       .from('aziende')
       .insert([{ nome: azienda_nome }])
@@ -67,7 +82,7 @@ app.post('/api/auth/register', async (req, res) => {
     
     console.log('Azienda created:', azienda.id);
     
-    // Create user profile
+    // Step 4: Create user profile
     const { error: profileError } = await supabase
       .from('users')
       .insert([{
@@ -84,15 +99,6 @@ app.post('/api/auth/register', async (req, res) => {
     }
     
     console.log('Profile created successfully');
-    
-    // Create session for immediate login
-    const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email,
-      options: {
-        redirectTo: `${req.headers.origin || 'http://localhost:5173'}/dashboard`
-      }
-    });
     
     res.json({ 
       success: true, 
