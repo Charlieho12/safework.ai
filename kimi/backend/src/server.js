@@ -250,16 +250,29 @@ app.get('/api/immagini', async (req, res) => {
 
 app.post('/api/immagini', async (req, res) => {
   try {
+    console.log('Creating immagine:', req.body.lavoro_id);
+    
+    // Remove any undefined values
+    const cleanBody = Object.fromEntries(
+      Object.entries(req.body).filter(([_, v]) => v !== undefined)
+    );
+    
     const { data, error } = await supabase
       .from('immagini')
-      .insert([req.body])
+      .insert([cleanBody])
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+    
+    console.log('Immagine created:', data.id);
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error creating immagine:', error);
+    res.status(500).json({ error: error.message, details: error });
   }
 });
 

@@ -202,6 +202,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     // Converti file in base64 per storage
     const base64Image = await fileToBase64(file);
     
+    console.log('Creating immagine for lavoro:', data.lavoro_id);
+    console.log('Image size:', base64Image.length, 'characters');
+    
     const immaginiLavoro = getImmaginiByLavoro(data.lavoro_id);
     const newOrdine = immaginiLavoro.length + 1;
     
@@ -215,14 +218,18 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
     
     try {
+      console.log('Sending to backend:', API_URL + '/immagini');
       const response = await fetch(`${API_URL}/immagini`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newImmagine),
       });
       
+      console.log('Response status:', response.status);
+      
       if (response.ok) {
         const saved = await response.json();
+        console.log('Saved to backend:', saved.id);
         setImmagini(prev => [...prev, saved]);
         
         // Update lavoro immagini_count
@@ -237,18 +244,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         requestAIAnalysis(saved.id, base64Image);
         
         return saved;
+      } else {
+        const errorData = await response.json();
+        console.error('Backend error:', errorData);
+        throw new Error(errorData.error || 'Failed to save image');
       }
     } catch (error) {
       console.error('Error creating immagine:', error);
+      // Fallback: add to local state only
+      setImmagini(prev => [...prev, newImmagine]);
+      
+      // Trigger AI analysis
+      requestAIAnalysis(newImmagine.id, base64Image);
+      
+      return newImmagine;
     }
-    
-    // Fallback: add to local state
-    setImmagini(prev => [...prev, newImmagine]);
-    
-    // Trigger AI analysis
-    requestAIAnalysis(newImmagine.id, base64Image);
-    
-    return newImmagine;
   };
 
   const deleteImmagine = async (id: string): Promise<void> => {
