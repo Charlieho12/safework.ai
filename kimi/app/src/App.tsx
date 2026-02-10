@@ -35,6 +35,7 @@ import CstaPage from '@/pages/csta/CstaPage';
 
 // Payment Pages
 import CheckoutSuccessPage from '@/pages/payment/CheckoutSuccessPage';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 // Inizializza storage
 initializeStorage();
@@ -105,7 +106,9 @@ function AppRoutes() {
       {/* Checkout Success */}
       <Route path="/checkout/success" element={
         <ProtectedRoute>
-          <CheckoutSuccessPage />
+          <ErrorBoundary>
+            <CheckoutSuccessPage />
+          </ErrorBoundary>
         </ProtectedRoute>
       } />
 
