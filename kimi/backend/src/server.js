@@ -254,6 +254,23 @@ app.delete('/api/lavori/:id', async (req, res) => {
   }
 });
 
+// Transform database row to frontend format
+function transformImmagine(row) {
+  const result = { ...row };
+  
+  // Combine lat/lng into geolocalizzazione object
+  if (row.geolocalizzazione_lat !== undefined && row.geolocalizzazione_lng !== undefined) {
+    result.geolocalizzazione = {
+      lat: row.geolocalizzazione_lat,
+      lng: row.geolocalizzazione_lng
+    };
+    delete result.geolocalizzazione_lat;
+    delete result.geolocalizzazione_lng;
+  }
+  
+  return result;
+}
+
 // ========== IMMAGINI (IMAGES) ==========
 app.get('/api/immagini', async (req, res) => {
   try {
@@ -267,7 +284,10 @@ app.get('/api/immagini', async (req, res) => {
     const { data, error } = await query.order('ordine', { ascending: true });
     
     if (error) throw error;
-    res.json(data);
+    
+    // Transform each row
+    const transformed = (data || []).map(transformImmagine);
+    res.json(transformed);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -294,7 +314,10 @@ app.post('/api/immagini', async (req, res) => {
     }
     
     console.log('Immagine created:', data.id);
-    res.json(data);
+    
+    // Transform response to frontend format
+    const transformed = transformImmagine(data);
+    res.json(transformed);
   } catch (error) {
     console.error('Error creating immagine:', error);
     res.status(500).json({ error: error.message, details: error });
@@ -312,7 +335,10 @@ app.put('/api/immagini/:id', async (req, res) => {
       .single();
     
     if (error) throw error;
-    res.json(data);
+    
+    // Transform response to frontend format
+    const transformed = transformImmagine(data);
+    res.json(transformed);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
