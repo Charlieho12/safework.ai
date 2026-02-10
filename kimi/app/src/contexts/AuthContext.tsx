@@ -1,10 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User } from '@/types';
 import { 
-  mockUsers, 
   getCurrentUser, 
-  setCurrentUser,
-  simulateNetworkDelay 
+  setCurrentUser
 } from '@/lib/mockData';
 
 export interface PaymentInfo {
