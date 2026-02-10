@@ -24,8 +24,33 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  try {
+    // Test Supabase connection
+    const { data, error } = await supabase.from('lavori').select('count');
+    
+    if (error) {
+      console.error('Supabase health check failed:', error);
+      res.status(500).json({ 
+        status: 'error', 
+        message: 'Supabase connection failed',
+        error: error.message 
+      });
+      return;
+    }
+    
+    res.json({ 
+      status: 'ok', 
+      stripe: 'connected',
+      supabase: 'connected',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'error', 
+      message: error.message 
+    });
+  }
 });
 
 // ========== AUTH ==========
