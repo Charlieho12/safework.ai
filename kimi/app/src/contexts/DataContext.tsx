@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { 
   Lavoro, 
   Immagine, 
@@ -8,15 +8,10 @@ import type {
   AnalisiAI,
   DashboardStats
 } from '@/types';
-import { 
-  getStorageLavori, 
-  getStorageImmagini, 
-  setStorageLavori, 
-  setStorageImmagini,
-  simulateNetworkDelay 
-} from '@/lib/mockData';
 import { analyzeImageWithAI } from '@/lib/openai';
 import { v4 as uuidv4 } from 'uuid';
+
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 interface DataContextType {
   // Lavori
@@ -44,6 +39,9 @@ interface DataContextType {
   
   // Update immagine
   updateImmagine: (immagine: Immagine) => void;
+  
+  // Loading states
+  isLoading: boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -62,13 +60,50 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const [lavori, setLavori] = useState<Lavoro[]>(getStorageLavori());
-  const [immagini, setImmagini] = useState<Immagine[]>(getStorageImmagini());
+  const [lavori, setLavori] = useState<Lavoro[]>([]);
+  const [immagini, setImmagini] = useState<Immagine[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
+
+  // Load data from backend on mount
+  useEffect(() => {
+    const user = localStorage.getItem('safework_current_user');
+    if (user) {
+      const parsed = JSON.parse(user);
+      setCurrentUserId(parsed.id);
+      fetchLavori(parsed.id);
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchLavori = async (userId: string) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${API_URL}/lavori?user_id=${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setLavori(data);
+        
+        // Fetch immagini for all lavori
+        const immaginiResponse = await fetch(`${API_URL}/immagini`);
+        if (immaginiResponse.ok) {
+          const immaginiData = await immaginiResponse.json();
+          setImmagini(immaginiData);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const refreshData = useCallback(() => {
-    setLavori(getStorageLavori());
-    setImmagini(getStorageImmagini());
-  }, []);
+    if (currentUserId) {
+      fetchLavori(currentUserId);
+    }
+  }, [currentUserId]);
 
   // Lavori
   const getLavoro = useCallback((id: string) => {
@@ -76,8 +111,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, [lavori]);
 
   const createLavoro = async (data: CreateLavoroDTO, userId: string, aziendaId: string): Promise<Lavoro> => {
-    await simulateNetworkDelay(600);
-    
     const newLavoro: Lavoro = {
       id: uuidv4(),
       ...data,
@@ -89,16 +122,28 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       immagini_count: 0
     };
     
-    const updatedLavori = [...lavori, newLavoro];
-    setLavori(updatedLavori);
-    setStorageLavori(updatedLavori);
+    try {
+      const response = await fetch(`${API_URL}/lavori`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newLavoro),
+      });
+      
+      if (response.ok) {
+        const saved = await response.json();
+        setLavori(prev => [...prev, saved]);
+        return saved;
+      }
+    } catch (error) {
+      console.error('Error creating lavoro:', error);
+    }
     
+    // Fallback: add to local state
+    setLavori(prev => [...prev, newLavoro]);
     return newLavoro;
   };
 
   const updateLavoro = async (id: string, data: UpdateLavoroDTO): Promise<Lavoro> => {
-    await simulateNetworkDelay(500);
-    
     const lavoroIndex = lavori.findIndex(l => l.id === id);
     if (lavoroIndex === -1) {
       throw new Error('Lavoro non trovato');
@@ -110,25 +155,36 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       data_modifica: new Date().toISOString()
     };
     
-    const updatedLavori = [...lavori];
-    updatedLavori[lavoroIndex] = updatedLavoro;
-    setLavori(updatedLavori);
-    setStorageLavori(updatedLavori);
+    try {
+      const response = await fetch(`${API_URL}/lavori/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedLavoro),
+      });
+      
+      if (response.ok) {
+        const saved = await response.json();
+        setLavori(prev => prev.map(l => l.id === id ? saved : l));
+        return saved;
+      }
+    } catch (error) {
+      console.error('Error updating lavoro:', error);
+    }
     
+    // Fallback: update local state
+    setLavori(prev => prev.map(l => l.id === id ? updatedLavoro : l));
     return updatedLavoro;
   };
 
   const deleteLavoro = async (id: string): Promise<void> => {
-    await simulateNetworkDelay(500);
+    try {
+      await fetch(`${API_URL}/lavori/${id}`, { method: 'DELETE' });
+    } catch (error) {
+      console.error('Error deleting lavoro:', error);
+    }
     
-    const updatedLavori = lavori.filter(l => l.id !== id);
-    setLavori(updatedLavori);
-    setStorageLavori(updatedLavori);
-    
-    // Elimina anche le immagini associate
-    const updatedImmagini = immagini.filter(i => i.lavoro_id !== id);
-    setImmagini(updatedImmagini);
-    setStorageImmagini(updatedImmagini);
+    setLavori(prev => prev.filter(l => l.id !== id));
+    setImmagini(prev => prev.filter(i => i.lavoro_id !== id));
   };
 
   // Immagini
@@ -158,85 +214,122 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       created_at: new Date().toISOString()
     };
     
-    const updatedImmagini = [...immagini, newImmagine];
-    setImmagini(updatedImmagini);
-    setStorageImmagini(updatedImmagini);
-    
-    // Aggiorna conteggio immagini nel lavoro
-    const lavoro = lavori.find(l => l.id === data.lavoro_id);
-    if (lavoro) {
-      const updatedLavoro = {
-        ...lavoro,
-        immagini_count: (lavoro.immagini_count || 0) + 1,
-        data_modifica: new Date().toISOString()
-      };
-      const updatedLavori = lavori.map(l => l.id === data.lavoro_id ? updatedLavoro : l);
-      setLavori(updatedLavori);
-      setStorageLavori(updatedLavori);
+    try {
+      const response = await fetch(`${API_URL}/immagini`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newImmagine),
+      });
+      
+      if (response.ok) {
+        const saved = await response.json();
+        setImmagini(prev => [...prev, saved]);
+        
+        // Update lavoro immagini_count
+        const lavoro = lavori.find(l => l.id === data.lavoro_id);
+        if (lavoro) {
+          await updateLavoro(data.lavoro_id, {
+            immagini_count: (lavoro.immagini_count || 0) + 1
+          });
+        }
+        
+        // Trigger AI analysis
+        requestAIAnalysis(saved.id, base64Image);
+        
+        return saved;
+      }
+    } catch (error) {
+      console.error('Error creating immagine:', error);
     }
     
-    // Richiedi analisi AI in background
-    setTimeout(() => {
-      requestAIAnalysis(newImmagine.id, base64Image);
-    }, 100);
+    // Fallback: add to local state
+    setImmagini(prev => [...prev, newImmagine]);
+    
+    // Trigger AI analysis
+    requestAIAnalysis(newImmagine.id, base64Image);
     
     return newImmagine;
   };
 
   const deleteImmagine = async (id: string): Promise<void> => {
-    await simulateNetworkDelay(400);
-    
     const immagine = immagini.find(i => i.id === id);
     if (!immagine) return;
     
-    const updatedImmagini = immagini.filter(i => i.id !== id);
-    setImmagini(updatedImmagini);
-    setStorageImmagini(updatedImmagini);
+    try {
+      await fetch(`${API_URL}/immagini/${id}`, { method: 'DELETE' });
+    } catch (error) {
+      console.error('Error deleting immagine:', error);
+    }
+    
+    setImmagini(prev => prev.filter(i => i.id !== id));
     
     // Aggiorna conteggio nel lavoro
     const lavoro = lavori.find(l => l.id === immagine.lavoro_id);
     if (lavoro) {
-      const updatedLavoro = {
-        ...lavoro,
-        immagini_count: Math.max(0, (lavoro.immagini_count || 0) - 1),
-        data_modifica: new Date().toISOString()
-      };
-      const updatedLavori = lavori.map(l => l.id === immagine.lavoro_id ? updatedLavoro : l);
-      setLavori(updatedLavori);
-      setStorageLavori(updatedLavori);
+      await updateLavoro(immagine.lavoro_id, {
+        immagini_count: Math.max(0, (lavoro.immagini_count || 0) - 1)
+      });
     }
   };
 
-  // Update immagine
-  const updateImmagine = (immagine: Immagine) => {
-    const updatedImmagini = immagini.map(i => 
-      i.id === immagine.id ? immagine : i
-    );
-    setImmagini(updatedImmagini);
-    setStorageImmagini(updatedImmagini);
+  const updateImmagine = async (immagine: Immagine) => {
+    try {
+      const response = await fetch(`${API_URL}/immagini/${immagine.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(immagine),
+      });
+      
+      if (response.ok) {
+        const saved = await response.json();
+        setImmagini(prev => prev.map(i => i.id === immagine.id ? saved : i));
+        return;
+      }
+    } catch (error) {
+      console.error('Error updating immagine:', error);
+    }
+    
+    // Fallback: update local state
+    setImmagini(prev => prev.map(i => i.id === immagine.id ? immagine : i));
   };
 
   // Analisi AI con OpenAI
   const requestAIAnalysis = async (immagineId: string, imageBase64?: string): Promise<AnalisiAI | null> => {
     try {
+      console.log('Starting AI analysis for image:', immagineId);
+      
       const immagine = immagini.find(i => i.id === immagineId);
-      if (!immagine) return null;
+      if (!immagine) {
+        console.error('Image not found:', immagineId);
+        return null;
+      }
       
       // Usa l'immagine passata o quella salvata
       const imageData = imageBase64 || immagine.url_immagine;
       
+      console.log('Calling OpenAI for analysis...');
       // Chiama OpenAI per l'analisi
       const analisiAI = await analyzeImageWithAI(imageData, immagine.descrizione_utente);
+      
+      console.log('AI analysis completed:', analisiAI);
       
       // Aggiungi l'ID immagine
       analisiAI.immagine_id = immagineId;
       
+      // Salva l'analisi nel backend
+      try {
+        await fetch(`${API_URL}/analisi`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(analisiAI),
+        });
+      } catch (e) {
+        console.log('Backend analisi save failed, continuing with local update');
+      }
+      
       // Aggiorna immagine con analisi
-      const updatedImmagini = immagini.map(i => 
-        i.id === immagineId ? { ...i, analisi_ai: analisiAI } : i
-      );
-      setImmagini(updatedImmagini);
-      setStorageImmagini(updatedImmagini);
+      const updatedImmagine = { ...immagine, analisi_ai: analisiAI };
+      await updateImmagine(updatedImmagine);
       
       return analisiAI;
     } catch (error) {
@@ -247,33 +340,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   // Statistiche
   const getDashboardStats = async (): Promise<DashboardStats> => {
-    await simulateNetworkDelay(500);
-    
-    // Calcola statistiche reali dai dati
-    const totaliLavori = lavori.length;
-    const lavoriInCorso = lavori.filter(l => l.stato === 'in_corso').length;
-    const lavoriCompletati = lavori.filter(l => l.stato === 'completato').length;
-    const totaliImmagini = immagini.length;
-    
-    const pericoliIdentificati = immagini.reduce((acc, img) => {
-      return acc + (img.analisi_ai?.pericoli_identificati.length || 0);
-    }, 0);
-    
-    const distribuzioneRischio = {
-      basso: immagini.filter(i => i.analisi_ai?.livello_rischio === 'basso').length,
-      medio: immagini.filter(i => i.analisi_ai?.livello_rischio === 'medio').length,
-      alto: immagini.filter(i => i.analisi_ai?.livello_rischio === 'alto').length,
-      critico: immagini.filter(i => i.analisi_ai?.livello_rischio === 'critico').length
+    const stats: DashboardStats = {
+      totali_lavori: lavori.length,
+      lavori_in_corso: lavori.filter(l => l.stato === 'in_corso').length,
+      lavori_completati: lavori.filter(l => l.stato === 'completato').length,
+      totali_immagini: immagini.length,
+      pericoli_identificati: immagini.filter(i => i.analisi_ai).length,
+      distribuzione_rischio: {
+        basso: immagini.filter(i => i.analisi_ai?.livello_rischio === 'basso').length,
+        medio: immagini.filter(i => i.analisi_ai?.livello_rischio === 'medio').length,
+        alto: immagini.filter(i => i.analisi_ai?.livello_rischio === 'alto').length,
+        critico: immagini.filter(i => i.analisi_ai?.livello_rischio === 'critico').length,
+      }
     };
     
-    return {
-      totali_lavori: totaliLavori,
-      lavori_in_corso: lavoriInCorso,
-      lavori_completati: lavoriCompletati,
-      totali_immagini: totaliImmagini,
-      pericoli_identificati: pericoliIdentificati,
-      distribuzione_rischio: distribuzioneRischio
-    };
+    return stats;
   };
 
   return (
@@ -291,7 +372,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       requestAIAnalysis,
       getDashboardStats,
       refreshData,
-      updateImmagine
+      updateImmagine,
+      isLoading
     }}>
       {children}
     </DataContext.Provider>

@@ -295,6 +295,57 @@ app.delete('/api/immagini/:id', async (req, res) => {
   }
 });
 
+// ========== ANALISI AI ==========
+app.get('/api/analisi', async (req, res) => {
+  try {
+    const { immagine_id } = req.query;
+    
+    let query = supabase.from('analisi_ai').select('*');
+    if (immagine_id) {
+      query = query.eq('immagine_id', immagine_id);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/analisi', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('analisi_ai')
+      .insert([req.body])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/analisi/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await supabase
+      .from('analisi_ai')
+      .update(req.body)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ========== STRIPE PAYMENTS ==========
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
