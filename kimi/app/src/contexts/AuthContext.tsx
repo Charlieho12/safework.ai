@@ -22,7 +22,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, nome_completo: string) => Promise<{ success: boolean; error?: string }>;
+  register: (email: string, password: string, nome_completo: string, azienda_nome?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
   payment: PaymentInfo | null;
@@ -175,21 +175,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (email: string, _password: string, _nome_completo: string) => {
+  const register = async (email: string, password: string, nome_completo: string, azienda_nome?: string) => {
     try {
-      await simulateNetworkDelay(1000);
-      
-      // Verifica se email esiste già
-      const existingUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (existingUser) {
-        return { success: false, error: 'Email già registrata' };
+      // Call backend API to register
+      const response = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          nome_completo,
+          azienda_nome: azienda_nome || nome_completo + ' Srl'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Errore durante la registrazione' };
       }
-      
-      // In un'app reale, creerebbe il nuovo utente nel database
-      // Per ora simuliamo il successo
-      return { success: true };
+
+      return { success: true, user: data.user };
     } catch (error) {
-      return { success: false, error: 'Errore durante la registrazione' };
+      console.error('Registration error:', error);
+      return { success: false, error: 'Errore di connessione al server' };
     }
   };
 

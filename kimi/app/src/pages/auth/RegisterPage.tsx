@@ -47,7 +47,7 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    const result = await register(formData.email, formData.password, formData.nome);
+    const result = await register(formData.email, formData.password, formData.nome, formData.azienda);
     
     if (result.success) {
       setSuccess(true);
@@ -71,7 +71,7 @@ export default function RegisterPage() {
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Registrazione Completata!</h2>
             <p className="text-slate-600 mb-4">
-              Abbiamo inviato una email di conferma al tuo indirizzo.
+              Il tuo account è stato creato con successo.
             </p>
             <p className="text-sm text-slate-500">
               Verrai reindirizzato alla pagina di login...

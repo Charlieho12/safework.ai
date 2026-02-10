@@ -33,13 +33,25 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, nome_completo, azienda_nome } = req.body;
     
-    // Create user in Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    console.log('Registering user:', email);
+    
+    // Create user in Supabase Auth using admin API (skips email confirmation)
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
+      email_confirm: true, // Auto-confirm email (skip SMTP)
+      user_metadata: {
+        nome_completo,
+        azienda_nome
+      }
     });
     
-    if (authError) throw authError;
+    if (authError) {
+      console.error('Auth error:', authError);
+      throw authError;
+    }
+    
+    console.log('User created:', authData.user.id);
     
     // Create azienda
     const { data: azienda, error: aziendaError } = await supabase
@@ -48,7 +60,12 @@ app.post('/api/auth/register', async (req, res) => {
       .select()
       .single();
     
-    if (aziendaError) throw aziendaError;
+    if (aziendaError) {
+      console.error('Azienda error:', aziendaError);
+      throw aziendaError;
+    }
+    
+    console.log('Azienda created:', azienda.id);
     
     // Create user profile
     const { error: profileError } = await supabase
@@ -61,9 +78,27 @@ app.post('/api/auth/register', async (req, res) => {
         ruolo: 'admin'
       }]);
     
-    if (profileError) throw profileError;
+    if (profileError) {
+      console.error('Profile error:', profileError);
+      throw profileError;
+    }
     
-    res.json({ success: true, user: authData.user });
+    console.log('Profile created successfully');
+    
+    // Create session for immediate login
+    const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email,
+      options: {
+        redirectTo: `${req.headers.origin || 'http://localhost:5173'}/dashboard`
+      }
+    });
+    
+    res.json({ 
+      success: true, 
+      user: authData.user,
+      message: 'Account created successfully. You can now log in.'
+    });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(400).json({ error: error.message });
