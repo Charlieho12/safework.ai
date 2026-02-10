@@ -208,13 +208,30 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const immaginiLavoro = getImmaginiByLavoro(data.lavoro_id);
     const newOrdine = immaginiLavoro.length + 1;
     
-    const newImmagine: Immagine = {
+    // Transform geolocalizzazione object to separate lat/lng fields for database
+    const { geolocalizzazione, ...restData } = data;
+    const dbData: any = {
       id: uuidv4(),
-      ...data,
+      ...restData,
       url_immagine: base64Image,
       ordine: newOrdine,
       timestamp: new Date().toISOString(),
       created_at: new Date().toISOString()
+    };
+    
+    // Add geolocation as separate fields if present
+    if (geolocalizzazione) {
+      dbData.geolocalizzazione_lat = geolocalizzazione.lat;
+      dbData.geolocalizzazione_lng = geolocalizzazione.lng;
+    }
+    
+    const newImmagine: Immagine = {
+      id: dbData.id,
+      ...data,
+      url_immagine: base64Image,
+      ordine: newOrdine,
+      timestamp: dbData.timestamp,
+      created_at: dbData.created_at
     };
     
     try {
@@ -222,7 +239,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch(`${API_URL}/immagini`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newImmagine),
+        body: JSON.stringify(dbData),
       });
       
       console.log('Response status:', response.status);
