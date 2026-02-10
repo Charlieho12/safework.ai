@@ -41,13 +41,14 @@ import type { Immagine, LivelloRischio } from '@/types';
 export default function LavoroDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getLavoro, getImmaginiByLavoro, deleteLavoro, requestAIAnalysis } = useData();
+  const { getLavoro, getImmaginiByLavoro, deleteLavoro, deleteImmagine, requestAIAnalysis } = useData();
   
   const lavoro = id ? getLavoro(id) : null;
   const immagini = id ? getImmaginiByLavoro(id) : [];
   
   const [selectedImage, setSelectedImage] = useState<Immagine | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDeletePhotoDialog, setShowDeletePhotoDialog] = useState(false);
   const [analyzingImageId, setAnalyzingImageId] = useState<string | null>(null);
 
   if (!lavoro) {
@@ -71,6 +72,14 @@ export default function LavoroDetailPage() {
     setAnalyzingImageId(immagineId);
     await requestAIAnalysis(immagineId);
     setAnalyzingImageId(null);
+  };
+
+  const handleDeletePhoto = async () => {
+    if (selectedImage) {
+      await deleteImmagine(selectedImage.id);
+      setSelectedImage(null);
+      setShowDeletePhotoDialog(false);
+    }
   };
 
   const getStatoBadge = (stato: string) => {
@@ -435,12 +444,43 @@ export default function LavoroDetailPage() {
                       </div>
                     </div>
                   )}
+                  
+                  <div className="pt-4 border-t border-slate-200">
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setShowDeletePhotoDialog(true)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Elimina Foto
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Photo Dialog */}
+      <AlertDialog open={showDeletePhotoDialog} onOpenChange={setShowDeletePhotoDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma eliminazione foto</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare questa foto? 
+              L'analisi AI associata verrà eliminata e non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeletePhoto} className="bg-red-600 hover:bg-red-700">
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
