@@ -274,6 +274,13 @@ function transformImmagine(row) {
     delete result.geolocalizzazione_lng;
   }
   
+  // Transform analisi_ai array to single object (it's a one-to-one relationship)
+  if (row.analisi_ai && Array.isArray(row.analisi_ai) && row.analisi_ai.length > 0) {
+    result.analisi_ai = row.analisi_ai[0];
+  } else if (row.analisi_ai === null || (Array.isArray(row.analisi_ai) && row.analisi_ai.length === 0)) {
+    delete result.analisi_ai;
+  }
+  
   return result;
 }
 
@@ -282,7 +289,8 @@ app.get('/api/immagini', async (req, res) => {
   try {
     const { lavoro_id } = req.query;
     
-    let query = supabase.from('immagini').select('*');
+    // Join with analisi_ai to get analysis data
+    let query = supabase.from('immagini').select('*, analisi_ai(*)');
     if (lavoro_id) {
       query = query.eq('lavoro_id', lavoro_id);
     }
