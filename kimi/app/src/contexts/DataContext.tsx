@@ -257,7 +257,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         }
         
         // Trigger AI analysis
-        requestAIAnalysis(saved.id, base64Image);
+        requestAIAnalysis(saved.id, base64Image, data.descrizione_utente);
         
         return saved;
       } else {
@@ -271,7 +271,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setImmagini(prev => [...prev, newImmagine]);
       
       // Trigger AI analysis
-      requestAIAnalysis(newImmagine.id, base64Image);
+      requestAIAnalysis(newImmagine.id, base64Image, data.descrizione_utente);
       
       return newImmagine;
     }
@@ -320,17 +320,23 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Analisi AI - chiama il backend
-  const requestAIAnalysis = async (immagineId: string, imageBase64?: string): Promise<AnalisiAI | null> => {
+  const requestAIAnalysis = async (immagineId: string, imageBase64?: string, description?: string): Promise<AnalisiAI | null> => {
     try {
       console.log('Starting AI analysis for image:', immagineId);
       
-      const immagine = immagini.find(i => i.id === immagineId);
-      if (!immagine) {
-        console.error('Image not found:', immagineId);
+      // Use provided image data or look up from state
+      const imageData = imageBase64;
+      if (!imageData) {
+        console.error('No image data provided for analysis');
         return null;
       }
       
-      const imageData = imageBase64 || immagine.url_immagine;
+      // Use provided description or look up from state
+      let desc = description;
+      if (!desc) {
+        const immagine = immagini.find(i => i.id === immagineId);
+        desc = immagine?.descrizione_utente || '';
+      }
       
       console.log('Calling backend for AI analysis...');
       
@@ -341,7 +347,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({
           immagine_id: immagineId,
           imageBase64: imageData,
-          description: immagine.descrizione_utente
+          description: desc
         }),
       });
       
@@ -353,9 +359,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const analisiAI = await response.json();
       console.log('AI analysis completed:', analisiAI);
       
-      // Aggiorna immagine con analisi
-      const updatedImmagine = { ...immagine, analisi_ai: analisiAI };
-      await updateImmagine(updatedImmagine);
+      // Look up immagine from state for update, or create minimal object
+      const immagine = immagini.find(i => i.id === immagineId);
+      if (immagine) {
+        // Aggiorna immagine con analisi
+        const updatedImmagine = { ...immagine, analisi_ai: analisiAI };
+        await updateImmagine(updatedImmagine);
+      }
       
       return analisiAI;
     } catch (error) {
