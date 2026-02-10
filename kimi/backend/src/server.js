@@ -3,8 +3,14 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { createClient } = require('@supabase/supabase-js');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const OpenAI = require('openai');
 
 dotenv.config();
+
+// Initialize OpenAI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -378,17 +384,117 @@ app.get('/api/analisi', async (req, res) => {
   }
 });
 
-app.post('/api/analisi', async (req, res) => {
+// AI Analysis endpoint
+app.post('/api/analyze-image', async (req, res) => {
   try {
+    const { imageBase64, description, immagine_id } = req.body;
+    
+    console.log('AI Analysis request for image:', immagine_id);
+    console.log('Description:', description);
+    
+    if (!imageBase64) {
+      return res.status(400).json({ error: 'No image provided' });
+    }
+    
+    // Remove data:image prefix if present
+    const base64Data = imageBase64.includes(',') 
+      ? imageBase64.split(',')[1] 
+      : imageBase64;
+    
+    console.log('Calling OpenAI...');
+    
+    // Call OpenAI for analysis
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: `Sei un esperto consulente per la sicurezza sul lavoro in Italia, specializzato nel D.Lgs. 81/08.
+
+Analizza l'immagine e fornisci una valutazione CONCISSA e DIRETTA.
+
+Rispondi in formato JSON:
+{
+  "pericoli_identificati": ["max 3 pericoli chiave"],
+  "livello_rischio": "basso|medio|alto|critico",
+  "descrizione_dettagliata": "max 2 frasi sintetiche",
+  "riferimenti_normativi": [
+    {
+      "articolo": "Art. XX",
+      "decreto": "D.Lgs. 81/08",
+      "descrizione": "breve"
+    }
+  ],
+  "raccomandazioni": ["max 3 azioni concrete"]
+}
+
+SII BREVE E PRECISO. Massimo 3 pericoli, 3 raccomandazioni.`
+        },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: description 
+                ? `Analizza: "${description}"`
+                : 'Analizza questa immagine di sicurezza sul lavoro.'
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:image/jpeg;base64,${base64Data}`
+              }
+            }
+          ]
+        }
+      ],
+      max_tokens: 800,
+      temperature: 0.2
+    });
+    
+    const content = completion.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No response from OpenAI');
+    }
+    
+    console.log('OpenAI response received');
+    
+    // Extract JSON from response
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('Invalid response format');
+    }
+    
+    const analysisData = JSON.parse(jsonMatch[0]);
+    
+    // Save to database
+    const analisiRecord = {
+      immagine_id,
+      pericoli_identificati: analysisData.pericoli_identificati?.slice(0, 3) || [],
+      livello_rischio: analysisData.livello_rischio || 'medio',
+      descrizione_dettagliata: analysisData.descrizione_dettagliata || '',
+      riferimenti_normativi: analysisData.riferimenti_normativi?.slice(0, 2) || [],
+      raccomandazioni: analysisData.raccomandazioni?.slice(0, 3) || []
+    };
+    
+    console.log('Saving analysis to database...');
+    
     const { data, error } = await supabase
       .from('analisi_ai')
-      .insert([req.body])
+      .insert([analisiRecord])
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Database error:', error);
+      throw error;
+    }
+    
+    console.log('Analysis saved:', data.id);
+    
     res.json(data);
   } catch (error) {
+    console.error('AI Analysis error:', error);
     res.status(500).json({ error: error.message });
   }
 });

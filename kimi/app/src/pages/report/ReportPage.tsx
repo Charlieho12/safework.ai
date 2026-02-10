@@ -22,8 +22,9 @@ import {
 } from 'lucide-react';
 import { Document, Packer, Paragraph, TextRun, ImageRun, HeadingLevel, AlignmentType } from 'docx';
 import { saveAs } from 'file-saver';
-import { analyzeImageWithAI } from '@/lib/openai';
 import type { FormatoReport, AnalisiAI } from '@/types';
+
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export default function ReportPage() {
   const { lavoroId } = useParams<{ lavoroId: string }>();
@@ -65,7 +66,7 @@ export default function ReportPage() {
     return bytes;
   };
 
-  // Analisi AI di tutte le foto
+  // Analisi AI di tutte le foto - chiama il backend
   const handleAnalyzeAll = async () => {
     if (immaginiSenzaAnalisi.length === 0) return;
     
@@ -80,9 +81,22 @@ export default function ReportPage() {
       setAnalysisProgress(Math.round(((i) / total) * 100));
       
       try {
-        // Chiama OpenAI per l'analisi
-        const analisi: AnalisiAI = await analyzeImageWithAI(img.url_immagine, img.descrizione_utente);
-        analisi.immagine_id = img.id;
+        // Chiama il backend per l'analisi AI
+        const response = await fetch(`${API_URL}/analyze-image`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            immagine_id: img.id,
+            imageBase64: img.url_immagine,
+            description: img.descrizione_utente
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Analysis failed');
+        }
+        
+        const analisi: AnalisiAI = await response.json();
         
         // Aggiorna l'immagine con l'analisi
         updateImmagine({ ...img, analisi_ai: analisi });

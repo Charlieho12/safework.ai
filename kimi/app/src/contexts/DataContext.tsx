@@ -8,7 +8,6 @@ import type {
   AnalisiAI,
   DashboardStats
 } from '@/types';
-import { analyzeImageWithAI } from '@/lib/openai';
 import { v4 as uuidv4 } from 'uuid';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -320,7 +319,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     setImmagini(prev => prev.map(i => i.id === immagine.id ? immagine : i));
   };
 
-  // Analisi AI con OpenAI
+  // Analisi AI - chiama il backend
   const requestAIAnalysis = async (immagineId: string, imageBase64?: string): Promise<AnalisiAI | null> => {
     try {
       console.log('Starting AI analysis for image:', immagineId);
@@ -331,28 +330,28 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         return null;
       }
       
-      // Usa l'immagine passata o quella salvata
       const imageData = imageBase64 || immagine.url_immagine;
       
-      console.log('Calling OpenAI for analysis...');
-      // Chiama OpenAI per l'analisi
-      const analisiAI = await analyzeImageWithAI(imageData, immagine.descrizione_utente);
+      console.log('Calling backend for AI analysis...');
       
-      console.log('AI analysis completed:', analisiAI);
+      // Chiama il backend per l'analisi AI
+      const response = await fetch(`${API_URL}/analyze-image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          immagine_id: immagineId,
+          imageBase64: imageData,
+          description: immagine.descrizione_utente
+        }),
+      });
       
-      // Aggiungi l'ID immagine
-      analisiAI.immagine_id = immagineId;
-      
-      // Salva l'analisi nel backend
-      try {
-        await fetch(`${API_URL}/analisi`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(analisiAI),
-        });
-      } catch (e) {
-        console.log('Backend analisi save failed, continuing with local update');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Analysis failed');
       }
+      
+      const analisiAI = await response.json();
+      console.log('AI analysis completed:', analisiAI);
       
       // Aggiorna immagine con analisi
       const updatedImmagine = { ...immagine, analisi_ai: analisiAI };
