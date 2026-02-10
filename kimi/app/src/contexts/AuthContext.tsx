@@ -133,22 +133,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      await simulateNetworkDelay(800);
-      
-      // Simulazione login - in produzione verificherebbe password hash
-      const foundUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-      
-      if (!foundUser) {
-        return { success: false, error: 'Email o password non validi' };
+      // Call backend API to login
+      const response = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Email o password non validi' };
       }
-      
-      // Simulazione verifica password (in produzione: bcrypt.compare)
-      if (password.length < 6) {
-        return { success: false, error: 'Email o password non validi' };
-      }
-      
-      setUser(foundUser);
-      setCurrentUser(foundUser);
+
+      const user: User = {
+        id: data.user.id,
+        email: data.user.email,
+        nome_completo: data.user.nome_completo || data.user.user_metadata?.nome_completo || email,
+        azienda_id: data.user.azienda_id,
+        ruolo: data.user.ruolo || 'admin',
+        created_at: data.user.created_at || new Date().toISOString()
+      };
+
+      setUser(user);
+      setCurrentUser(user);
       
       // Carica pagamento esistente o crea trial
       const existingPayment = localStorage.getItem(PAYMENT_KEY);
@@ -162,7 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           date: new Date().toISOString(),
           status: 'trial',
           trialEndDate: trialEnd.toISOString(),
-          userId: foundUser.id
+          userId: user.id
         };
         setPayment(newPayment);
       } else {
@@ -171,7 +181,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       return { success: true };
     } catch (error) {
-      return { success: false, error: 'Errore durante il login' };
+      console.error('Login error:', error);
+      return { success: false, error: 'Errore di connessione al server' };
     }
   };
 

@@ -115,19 +115,43 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
+    console.log('Login attempt for:', email);
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase auth error:', error);
+      throw error;
+    }
+    
+    console.log('Auth successful for user:', data.user.id);
     
     // Get user profile
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('users')
       .select('*')
       .eq('id', data.user.id)
       .single();
+    
+    if (profileError) {
+      console.error('Profile fetch error:', profileError);
+      // Return auth user even if profile not found
+      res.json({ 
+        success: true, 
+        user: { 
+          ...data.user, 
+          nome_completo: data.user.user_metadata?.nome_completo || email,
+          ruolo: 'admin'
+        },
+        session: data.session
+      });
+      return;
+    }
+    
+    console.log('Profile found:', profile);
     
     res.json({ 
       success: true, 
