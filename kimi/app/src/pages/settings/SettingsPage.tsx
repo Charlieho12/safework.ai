@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,17 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTheme } from '@/contexts/ThemeContext';
 import { 
   Bell, 
   Lock, 
   Globe, 
   Moon, 
+  Sun,
   Check,
   Loader2,
   AlertTriangle
 } from 'lucide-react';
 
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   
@@ -28,7 +31,6 @@ export default function SettingsPage() {
       newsletter: false,
     },
     preferences: {
-      darkMode: false,
       language: 'it',
       autoSave: true,
     },
@@ -37,6 +39,11 @@ export default function SettingsPage() {
       sessionTimeout: '30',
     }
   });
+  
+  // Sync theme from context when component mounts
+  useEffect(() => {
+    // Theme is already synced via context
+  }, [theme]);
 
   const handleSave = async (section: string) => {
     setIsLoading(true);
@@ -227,7 +234,11 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <Moon className="w-4 h-4" />
+                  {theme === 'dark' ? (
+                    <Moon className="w-4 h-4 text-purple-600" />
+                  ) : (
+                    <Sun className="w-4 h-4 text-orange-500" />
+                  )}
                   <Label>Modalità Scura</Label>
                 </div>
                 <p className="text-sm text-slate-500">
@@ -235,10 +246,10 @@ export default function SettingsPage() {
                 </p>
               </div>
               <Switch 
-                checked={settings.preferences.darkMode}
-                onCheckedChange={(checked) => 
-                  setSettings({ ...settings, preferences: { ...settings.preferences, darkMode: checked }})
-                }
+                checked={theme === 'dark'}
+                onCheckedChange={(checked) => {
+                  setTheme(checked ? 'dark' : 'light');
+                }}
               />
             </div>
             <Separator />

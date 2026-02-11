@@ -18,7 +18,9 @@ import {
   Building2,
   Camera,
   Calendar,
-  Brain
+  Brain,
+  FileSpreadsheet,
+  Table
 } from 'lucide-react';
 import { Document, Packer, Paragraph, TextRun, ImageRun, HeadingLevel, AlignmentType } from 'docx';
 import { saveAs } from 'file-saver';
@@ -33,7 +35,7 @@ export default function ReportPage() {
   const lavoro = lavoroId ? getLavoro(lavoroId) : null;
   const immaginiLavoro = lavoroId ? getImmaginiByLavoro(lavoroId) : [];
   
-  const [formato] = useState<FormatoReport>('docx');
+  const [formato, setFormato] = useState<FormatoReport>('docx');
   const [includeImages, setIncludeImages] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -356,12 +358,108 @@ export default function ReportPage() {
     saveAs(blob, `Report_${lavoro.nome_progetto.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.docx`);
   };
 
+  // Export to CSV
+  const generateCSV = () => {
+    const headers = ['Evidenza', 'Data', 'Descrizione', 'Livello Rischio', 'Pericoli', 'Raccomandazioni'];
+    const rows = immaginiLavoro.map((img, idx) => {
+      const analisi = img.analisi_ai;
+      return [
+        `Evidenza ${idx + 1}`,
+        new Date(img.timestamp).toLocaleString('it-IT'),
+        `"${(img.descrizione_utente || 'Nessuna descrizione').replace(/"/g, '""')}"`,
+        analisi?.livello_rischio.toUpperCase() || 'N/A',
+        analisi ? `"${analisi.pericoli_identificati.join('; ').replace(/"/g, '""')}"` : 'N/A',
+        analisi ? `"${analisi.raccomandazioni.join('; ').replace(/"/g, '""')}"` : 'N/A'
+      ];
+    });
+    
+    const csvContent = [
+      ['Report Sicurezza Sul Lavoro'],
+      ['Progetto:', lavoro.nome_progetto],
+      ['Azienda:', lavoro.nome_azienda_cliente],
+      ['Data:', new Date().toLocaleDateString('it-IT')],
+      [''],
+      headers,
+      ...rows
+    ].map(row => row.join(',')).join('\n');
+    
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, `Report_${lavoro.nome_progetto.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  // Export to Excel (HTML table that opens in Excel)
+  const generateExcel = () => {
+    let html = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          table { border-collapse: collapse; font-family: Arial, sans-serif; }
+          th { background-color: #3b82f6; color: white; padding: 10px; text-align: left; }
+          td { padding: 8px; border: 1px solid #ddd; }
+          .header { background-color: #f3f4f6; font-weight: bold; }
+          .risk-basso { background-color: #dcfce7; }
+          .risk-medio { background-color: #fef9c3; }
+          .risk-alto { background-color: #ffedd5; }
+          .risk-critico { background-color: #fee2e2; }
+        </style>
+      </head>
+      <body>
+        <h2>Report Sicurezza Sul Lavoro</h2>
+        <p><strong>Progetto:</strong> ${lavoro.nome_progetto}</p>
+        <p><strong>Azienda:</strong> ${lavoro.nome_azienda_cliente}</p>
+        <p><strong>Data:</strong> ${new Date().toLocaleDateString('it-IT')}</p>
+        <br>
+        <table>
+          <thead>
+            <tr>
+              <th>Evidenza</th>
+              <th>Data</th>
+              <th>Descrizione</th>
+              <th>Livello Rischio</th>
+              <th>Pericoli Identificati</th>
+              <th>Raccomandazioni</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    immaginiLavoro.forEach((img, idx) => {
+      const analisi = img.analisi_ai;
+      const riskClass = analisi ? `risk-${analisi.livello_rischio}` : '';
+      html += `
+        <tr>
+          <td>Evidenza ${idx + 1}</td>
+          <td>${new Date(img.timestamp).toLocaleString('it-IT')}</td>
+          <td>${img.descrizione_utente || 'Nessuna descrizione'}</td>
+          <td class="${riskClass}">${analisi?.livello_rischio.toUpperCase() || 'N/A'}</td>
+          <td>${analisi ? analisi.pericoli_identificati.join(', ') : 'N/A'}</td>
+          <td>${analisi ? analisi.raccomandazioni.join(', ') : 'N/A'}</td>
+        </tr>
+      `;
+    });
+    
+    html += `
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
+    
+    const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    saveAs(blob, `Report_${lavoro.nome_progetto.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xls`);
+  };
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     
     try {
       if (formato === 'docx') {
         await generateDOCX();
+      } else if (formato === 'csv') {
+        generateCSV();
+      } else if (formato === 'xls') {
+        generateExcel();
       }
       
       setShowSuccess(true);
@@ -522,19 +620,47 @@ export default function ReportPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Formato: DOCX</Label>
+                <Label>Formato</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button
+                    variant={formato === 'docx' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormato('docx')}
+                    className="w-full"
+                  >
+                    DOCX
+                  </Button>
+                  <Button
+                    variant={formato === 'csv' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormato('csv')}
+                    className="w-full"
+                  >
+                    CSV
+                  </Button>
+                  <Button
+                    variant={formato === 'xls' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormato('xls')}
+                    className="w-full"
+                  >
+                    Excel
+                  </Button>
+                </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="images" 
-                  checked={includeImages}
-                  onCheckedChange={(c) => setIncludeImages(c as boolean)}
-                />
-                <Label htmlFor="images" className="cursor-pointer">
-                  Includi immagini
-                </Label>
-              </div>
+              {formato === 'docx' && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="images" 
+                    checked={includeImages}
+                    onCheckedChange={(c) => setIncludeImages(c as boolean)}
+                  />
+                  <Label htmlFor="images" className="cursor-pointer">
+                    Includi immagini
+                  </Label>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -589,7 +715,7 @@ export default function ReportPage() {
         </Link>
         <Button 
           onClick={handleGenerate}
-          disabled={isGenerating || immaginiLavoro.length === 0 || immaginiSenzaAnalisi.length > 0}
+          disabled={isGenerating || immaginiLavoro.length === 0 || (formato === 'docx' && immaginiSenzaAnalisi.length > 0)}
           className="gap-2"
         >
           {isGenerating ? (
@@ -599,8 +725,10 @@ export default function ReportPage() {
             </>
           ) : (
             <>
-              <Download className="w-4 h-4" />
-              Scarica Report
+              {formato === 'docx' && <FileText className="w-4 h-4" />}
+              {formato === 'csv' && <Table className="w-4 h-4" />}
+              {formato === 'xls' && <FileSpreadsheet className="w-4 h-4" />}
+              Scarica {formato === 'docx' ? 'DOCX' : formato === 'csv' ? 'CSV' : 'Excel'}
             </>
           )}
         </Button>
