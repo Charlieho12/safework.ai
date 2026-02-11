@@ -36,6 +36,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'common.or': 'oppure',
     'common.and': 'e',
     'common.times': 'volte',
+    'common.saving': 'Salvataggio...',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
@@ -190,6 +191,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'settings.deleteAccount': 'Elimina Account',
     'settings.deleteAccountDesc': 'Elimina permanentemente il tuo account e tutti i dati',
     'settings.delete': 'Elimina',
+    'settings.updatedSuccess': '{section} aggiornati con successo!',
     
     // Profile
     'profile.title': 'Profilo',
@@ -210,6 +212,13 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'profile.active': 'Attivo',
     'profile.trial': 'Prova',
     'profile.expires': 'Scadenza',
+    'profile.manageAccount': 'Gestisci le informazioni del tuo account',
+    'profile.updateSuccess': 'Profilo aggiornato con successo!',
+    'profile.viewEditData': 'Visualizza e modifica i tuoi dati personali',
+    'profile.saveChanges': 'Salva Modifiche',
+    'profile.accountInfo': 'Informazioni Account',
+    'profile.emailStatus': 'Stato Email',
+    'profile.verified': 'Verificata',
     
     // Auth
     'auth.login': 'Accedi',
@@ -272,6 +281,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'common.or': 'or',
     'common.and': 'and',
     'common.times': 'times',
+    'common.saving': 'Saving...',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
@@ -426,6 +436,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'settings.deleteAccount': 'Delete Account',
     'settings.deleteAccountDesc': 'Permanently delete your account and all data',
     'settings.delete': 'Delete',
+    'settings.updatedSuccess': '{section} updated successfully!',
     
     // Profile
     'profile.title': 'Profile',
@@ -446,6 +457,13 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'profile.active': 'Active',
     'profile.trial': 'Trial',
     'profile.expires': 'Expires',
+    'profile.manageAccount': 'Manage your account information',
+    'profile.updateSuccess': 'Profile updated successfully!',
+    'profile.viewEditData': 'View and edit your personal data',
+    'profile.saveChanges': 'Save Changes',
+    'profile.accountInfo': 'Account Information',
+    'profile.emailStatus': 'Email Status',
+    'profile.verified': 'Verified',
     
     // Auth
     'auth.login': 'Sign In',
@@ -508,6 +526,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'common.or': 'ou',
     'common.and': 'et',
     'common.times': 'fois',
+    'common.saving': 'Enregistrement...',
     
     // Dashboard
     'dashboard.title': 'Tableau de Bord',
@@ -662,6 +681,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'settings.deleteAccount': 'Supprimer Compte',
     'settings.deleteAccountDesc': 'Supprimez définitivement votre compte et toutes les données',
     'settings.delete': 'Supprimer',
+    'settings.updatedSuccess': '{section} mis à jour avec succès!',
     
     // Profile
     'profile.title': 'Profil',
@@ -682,6 +702,13 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'profile.active': 'Actif',
     'profile.trial': 'Essai',
     'profile.expires': 'Expire',
+    'profile.manageAccount': 'Gérez les informations de votre compte',
+    'profile.updateSuccess': 'Profil mis à jour avec succès!',
+    'profile.viewEditData': 'Visualisez et modifiez vos données personnelles',
+    'profile.saveChanges': 'Enregistrer Modifications',
+    'profile.accountInfo': 'Informations Compte',
+    'profile.emailStatus': 'Statut Email',
+    'profile.verified': 'Vérifié',
     
     // Auth
     'auth.login': 'Connexion',
@@ -744,6 +771,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'common.or': 'oder',
     'common.and': 'und',
     'common.times': 'mal',
+    'common.saving': 'Speichern...',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
@@ -898,6 +926,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'settings.deleteAccount': 'Konto Löschen',
     'settings.deleteAccountDesc': 'Löschen Sie Ihr Konto und alle Daten dauerhaft',
     'settings.delete': 'Löschen',
+    'settings.updatedSuccess': '{section} erfolgreich aktualisiert!',
     
     // Profile
     'profile.title': 'Profil',
@@ -918,6 +947,13 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'profile.active': 'Aktiv',
     'profile.trial': 'Testphase',
     'profile.expires': 'Läuft ab',
+    'profile.manageAccount': 'Verwalten Sie Ihre Kontoinformationen',
+    'profile.updateSuccess': 'Profil erfolgreich aktualisiert!',
+    'profile.viewEditData': 'Sehen und bearbeiten Sie Ihre persönlichen Daten',
+    'profile.saveChanges': 'Änderungen Speichern',
+    'profile.accountInfo': 'Kontoinformationen',
+    'profile.emailStatus': 'E-Mail-Status',
+    'profile.verified': 'Verifiziert',
     
     // Auth
     'auth.login': 'Anmelden',
@@ -980,6 +1016,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'common.or': 'o',
     'common.and': 'y',
     'common.times': 'veces',
+    'common.saving': 'Guardando...',
     
     // Dashboard
     'dashboard.title': 'Panel de Control',
@@ -1134,6 +1171,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'settings.deleteAccount': 'Eliminar Cuenta',
     'settings.deleteAccountDesc': 'Elimina permanentemente tu cuenta y todos los datos',
     'settings.delete': 'Eliminar',
+    'settings.updatedSuccess': '¡{section} actualizado con éxito!',
     
     // Profile
     'profile.title': 'Perfil',
@@ -1154,6 +1192,13 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'profile.active': 'Activo',
     'profile.trial': 'Prueba',
     'profile.expires': 'Expira',
+    'profile.manageAccount': 'Gestiona la información de tu cuenta',
+    'profile.updateSuccess': '¡Perfil actualizado con éxito!',
+    'profile.viewEditData': 'Ver y editar tus datos personales',
+    'profile.saveChanges': 'Guardar Cambios',
+    'profile.accountInfo': 'Información de Cuenta',
+    'profile.emailStatus': 'Estado Email',
+    'profile.verified': 'Verificado',
     
     // Auth
     'auth.login': 'Iniciar Sesión',

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User, Mail, Building2, Shield, Loader2, Check } from 'lucide-react';
 
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,9 +48,9 @@ export default function ProfilePage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Profilo</h1>
+        <h1 className="text-3xl font-bold text-slate-900">{t('profile.title')}</h1>
         <p className="text-slate-500 mt-1">
-          Gestisci le informazioni del tuo account
+          {t('profile.manageAccount')}
         </p>
       </div>
 
@@ -56,7 +58,7 @@ export default function ProfilePage() {
         <Alert className="bg-green-50 border-green-200">
           <Check className="w-4 h-4 text-green-600" />
           <AlertDescription className="text-green-700">
-            Profilo aggiornato con successo!
+            {t('profile.updateSuccess')}
           </AlertDescription>
         </Alert>
       )}
@@ -65,15 +67,15 @@ export default function ProfilePage() {
         {/* Profile Card */}
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Informazioni Personali</CardTitle>
+            <CardTitle>{t('profile.personalInfo')}</CardTitle>
             <CardDescription>
-              Visualizza e modifica i tuoi dati personali
+              {t('profile.viewEditData')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="nome">Nome Completo</Label>
+                <Label htmlFor="nome">{t('profile.fullName')}</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input
@@ -87,7 +89,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('profile.email')}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input
@@ -108,10 +110,10 @@ export default function ProfilePage() {
                       {isLoading ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Salvataggio...
+                          {t('common.saving')}
                         </>
                       ) : (
-                        'Salva Modifiche'
+                        {t('profile.saveChanges')}
                       )}
                     </Button>
                     <Button 
@@ -120,12 +122,12 @@ export default function ProfilePage() {
                       onClick={() => setIsEditing(false)}
                       disabled={isLoading}
                     >
-                      Annulla
+                      {t('common.cancel')}
                     </Button>
                   </>
                 ) : (
                   <Button type="button" onClick={() => setIsEditing(true)}>
-                    Modifica Profilo
+                    {t('profile.editProfile')}
                   </Button>
                 )}
               </div>
@@ -154,7 +156,7 @@ export default function ProfilePage() {
           {/* Account Info */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Informazioni Account</CardTitle>
+              <CardTitle className="text-sm">{t('profile.accountInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
@@ -162,7 +164,7 @@ export default function ProfilePage() {
                   <Building2 className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Azienda</p>
+                  <p className="text-sm text-slate-500">{t('profile.company')}</p>
                   <p className="font-medium">SafeWork AI</p>
                 </div>
               </div>
@@ -172,7 +174,7 @@ export default function ProfilePage() {
                   <Shield className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Ruolo</p>
+                  <p className="text-sm text-slate-500">{t('profile.role')}</p>
                   <p className="font-medium capitalize">{user?.ruolo}</p>
                 </div>
               </div>
@@ -182,8 +184,8 @@ export default function ProfilePage() {
                   <Mail className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Stato Email</p>
-                  <p className="font-medium text-green-600">Verificata</p>
+                  <p className="text-sm text-slate-500">{t('profile.emailStatus')}</p>
+                  <p className="font-medium text-green-600">{t('profile.verified')}</p>
                 </div>
               </div>
             </CardContent>

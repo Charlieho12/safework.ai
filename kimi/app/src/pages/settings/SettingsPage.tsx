@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage, LANGUAGE_NAMES, LANGUAGE_FLAGS } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { 
   Bell, 
   Lock, 
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +49,7 @@ export default function SettingsPage() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 800));
     
-    setSuccess(`${section} aggiornati con successo!`);
+    setSuccess(t('settings.updatedSuccess', { section }));
     setIsLoading(false);
     
     setTimeout(() => setSuccess(null), 3000);
@@ -57,9 +59,9 @@ export default function SettingsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Impostazioni</h1>
+        <h1 className="text-3xl font-bold text-slate-900">{t('settings.title')}</h1>
         <p className="text-slate-500 mt-1">
-          Gestisci le preferenze e le impostazioni del tuo account
+          {t('settings.subtitle')}
         </p>
       </div>
 
@@ -81,9 +83,9 @@ export default function SettingsPage() {
                 <Bell className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <CardTitle>Notifiche</CardTitle>
+                <CardTitle>{t('settings.notifications')}</CardTitle>
                 <CardDescription>
-                  Scegli come ricevere le notifiche
+                  {t('settings.notificationsDesc')}
                 </CardDescription>
               </div>
             </div>
@@ -91,9 +93,9 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Notifiche Email</Label>
+                <Label>{t('settings.emailNotifications')}</Label>
                 <p className="text-sm text-slate-500">
-                  Ricevi aggiornamenti via email
+                  {t('settings.emailNotificationsDesc')}
                 </p>
               </div>
               <Switch 
@@ -106,9 +108,9 @@ export default function SettingsPage() {
             <Separator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Notifiche Push</Label>
+                <Label>{t('settings.pushNotifications')}</Label>
                 <p className="text-sm text-slate-500">
-                  Ricevi notifiche nel browser
+                  {t('settings.pushNotificationsDesc')}
                 </p>
               </div>
               <Switch 
@@ -121,9 +123,9 @@ export default function SettingsPage() {
             <Separator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Aggiornamenti Prodotto</Label>
+                <Label>{t('settings.productUpdates')}</Label>
                 <p className="text-sm text-slate-500">
-                  Novità e funzionalità di SafeWork AI
+                  {t('settings.productUpdatesDesc')}
                 </p>
               </div>
               <Switch 
@@ -141,10 +143,10 @@ export default function SettingsPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Salvataggio...
+                    {t('common.saving')}
                   </>
                 ) : (
-                  'Salva Preferenze'
+                  {t('settings.savePreferences')}
                 )}
               </Button>
             </div>
@@ -159,9 +161,9 @@ export default function SettingsPage() {
                 <Lock className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <CardTitle>Sicurezza</CardTitle>
+                <CardTitle>{t('settings.security')}</CardTitle>
                 <CardDescription>
-                  Gestisci la sicurezza del tuo account
+                  {t('settings.securityDesc')}
                 </CardDescription>
               </div>
             </div>
@@ -169,9 +171,9 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Autenticazione a Due Fattori</Label>
+                <Label>{t('settings.twoFactor')}</Label>
                 <p className="text-sm text-slate-500">
-                  Aggiungi un livello di sicurezza extra
+                  {t('settings.twoFactorDesc')}
                 </p>
               </div>
               <Switch 
@@ -183,7 +185,7 @@ export default function SettingsPage() {
             </div>
             <Separator />
             <div className="space-y-2">
-              <Label>Timeout Sessione (minuti)</Label>
+              <Label>{t('settings.sessionTimeout')}</Label>
               <Input 
                 type="number" 
                 value={settings.security.sessionTimeout}
@@ -204,7 +206,7 @@ export default function SettingsPage() {
                     Salvataggio...
                   </>
                 ) : (
-                  'Salva Impostazioni'
+                  {t('settings.saveSecurity')}
                 )}
               </Button>
             </div>
@@ -219,9 +221,9 @@ export default function SettingsPage() {
                 <Globe className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <CardTitle>Preferenze</CardTitle>
+                <CardTitle>{t('settings.preferences')}</CardTitle>
                 <CardDescription>
-                  Personalizza la tua esperienza
+                  {t('settings.preferencesDesc')}
                 </CardDescription>
               </div>
             </div>
@@ -235,10 +237,10 @@ export default function SettingsPage() {
                   ) : (
                     <Sun className="w-4 h-4 text-orange-500" />
                   )}
-                  <Label>Modalità Scura</Label>
+                  <Label>{t('settings.darkMode')}</Label>
                 </div>
                 <p className="text-sm text-slate-500">
-                  Tema scuro per l'interfaccia
+                  {t('settings.darkModeDesc')}
                 </p>
               </div>
               <Switch 
@@ -251,9 +253,9 @@ export default function SettingsPage() {
             <Separator />
             <div className="space-y-3">
               <div className="space-y-0.5">
-                <Label>Lingua Analisi AI</Label>
+                <Label>{t('settings.aiLanguage')}</Label>
                 <p className="text-sm text-slate-500">
-                  Seleziona la lingua per l'analisi delle foto
+                  {t('settings.aiLanguageDesc')}
                 </p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -274,9 +276,9 @@ export default function SettingsPage() {
             <Separator />
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Salvataggio Automatico</Label>
+                <Label>{t('settings.autoSave')}</Label>
                 <p className="text-sm text-slate-500">
-                  Salva automaticamente i lavori
+                  {t('settings.autoSaveDesc')}
                 </p>
               </div>
               <Switch 
@@ -312,9 +314,9 @@ export default function SettingsPage() {
                 <AlertTriangle className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <CardTitle className="text-red-600">Zona Pericolosa</CardTitle>
+                <CardTitle className="text-red-600">{t('settings.dangerZone')}</CardTitle>
                 <CardDescription>
-                  Azioni irreversibili per il tuo account
+                  {t('settings.dangerZoneDesc')}
                 </CardDescription>
               </div>
             </div>
@@ -322,13 +324,13 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium">Elimina Account</h4>
+                <h4 className="font-medium">{t('settings.deleteAccount')}</h4>
                 <p className="text-sm text-slate-500">
-                  Elimina permanentemente il tuo account e tutti i dati
+                  {t('settings.deleteAccountDesc')}
                 </p>
               </div>
               <Button variant="destructive">
-                Elimina Account
+                {t('settings.delete')}
               </Button>
             </div>
           </CardContent>
