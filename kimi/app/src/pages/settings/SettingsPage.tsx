@@ -146,7 +146,7 @@ export default function SettingsPage() {
                     {t('common.saving')}
                   </>
                 ) : (
-                  {t('settings.savePreferences')}
+                  t('settings.savePreferences')
                 )}
               </Button>
             </div>
@@ -296,10 +296,10 @@ export default function SettingsPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Salvataggio...
+                    {t('common.saving')}
                   </>
                 ) : (
-                  'Salva Preferenze'
+                  t('settings.savePreferences')
                 )}
               </Button>
             </div>

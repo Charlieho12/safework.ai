@@ -113,7 +113,7 @@ export default function ProfilePage() {
                           {t('common.saving')}
                         </>
                       ) : (
-                        {t('profile.saveChanges')}
+                        t('profile.saveChanges')
                       )}
                     </Button>
                     <Button 
