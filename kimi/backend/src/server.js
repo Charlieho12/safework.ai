@@ -392,32 +392,11 @@ app.get('/api/analisi', async (req, res) => {
   }
 });
 
-// AI Analysis endpoint
-app.post('/api/analyze-image', async (req, res) => {
-  try {
-    const { imageBase64, description, immagine_id } = req.body;
-    
-    console.log('AI Analysis request for image:', immagine_id);
-    console.log('Description:', description);
-    
-    if (!imageBase64) {
-      return res.status(400).json({ error: 'No image provided' });
-    }
-    
-    // Remove data:image prefix if present
-    const base64Data = imageBase64.includes(',') 
-      ? imageBase64.split(',')[1] 
-      : imageBase64;
-    
-    console.log('Calling OpenAI...');
-    
-    // Call OpenAI for analysis
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: `Sei un esperto consulente per la sicurezza sul lavoro in Italia, specializzato nel D.Lgs. 81/08.
+// Language configurations for AI analysis
+const LANGUAGE_CONFIGS = {
+  it: {
+    name: 'Italian',
+    systemPrompt: `Sei un esperto consulente per la sicurezza sul lavoro in Italia, specializzato nel D.Lgs. 81/08.
 
 Analizza l'immagine e fornisci una valutazione CONCISSA e DIRETTA.
 
@@ -436,16 +415,154 @@ Rispondi in formato JSON:
   "raccomandazioni": ["max 3 azioni concrete"]
 }
 
-SII BREVE E PRECISO. Massimo 3 pericoli, 3 raccomandazioni.`
+SII BREVE E PRECISO. Massimo 3 pericoli, 3 raccomandazioni.
+
+IMPORTANTE: Rispondi SEMPRE in italiano.`,
+    analyzeText: (desc) => desc ? `Analizza: "${desc}"` : 'Analizza questa immagine di sicurezza sul lavoro.'
+  },
+  en: {
+    name: 'English',
+    systemPrompt: `You are an expert workplace safety consultant specializing in occupational health and safety regulations.
+
+Analyze the image and provide a CONCISE and DIRECT assessment.
+
+Respond in JSON format:
+{
+  "pericoli_identificati": ["max 3 key hazards"],
+  "livello_rischio": "low|medium|high|critical",
+  "descrizione_dettagliata": "max 2 concise sentences",
+  "riferimenti_normativi": [
+    {
+      "articolo": "Section XX",
+      "decreto": "OSHA Standards",
+      "descrizione": "brief"
+    }
+  ],
+  "raccomandazioni": ["max 3 concrete actions"]
+}
+
+BE BRIEF AND PRECISE. Maximum 3 hazards, 3 recommendations.
+
+IMPORTANT: Always respond in English.`,
+    analyzeText: (desc) => desc ? `Analyze: "${desc}"` : 'Analyze this workplace safety image.'
+  },
+  fr: {
+    name: 'French',
+    systemPrompt: `Vous êtes un expert consultant en sécurité au travail, spécialisé dans la réglementation sur la santé et la sécurité.
+
+Analysez l'image et fournissez une évaluation CONCISE et DIRECTE.
+
+Répondez au format JSON:
+{
+  "pericoli_identificati": ["max 3 dangers clés"],
+  "livello_rischio": "faible|moyen|élevé|critique",
+  "descrizione_dettagliata": "max 2 phrases concises",
+  "riferimenti_normativi": [
+    {
+      "articolo": "Art. XX",
+      "decreto": "Code du Travail",
+      "descrizione": "bref"
+    }
+  ],
+  "raccomandazioni": ["max 3 actions concrètes"]
+}
+
+SOYEZ BREF ET PRÉCIS. Maximum 3 dangers, 3 recommandations.
+
+IMPORTANT: Répondez TOUJOURS en français.`,
+    analyzeText: (desc) => desc ? `Analysez: "${desc}"` : 'Analysez cette image de sécurité au travail.'
+  },
+  de: {
+    name: 'German',
+    systemPrompt: `Sie sind ein Experte für Arbeitssicherheit, spezialisiert auf Arbeitsschutzvorschriften.
+
+Analysieren Sie das Bild und geben Sie eine KNAPPE und DIREKTE Bewertung ab.
+
+Antworten Sie im JSON-Format:
+{
+  "pericoli_identificati": ["max 3 wichtige Gefahren"],
+  "livello_rischio": "niedrig|mittel|hoch|kritisch",
+  "descrizione_dettagliata": "max 2 prägnante Sätze",
+  "riferimenti_normativi": [
+    {
+      "articolo": "§ XX",
+      "decreto": "ArbSchG",
+      "descrizione": "kurz"
+    }
+  ],
+  "raccomandazioni": ["max 3 konkrete Maßnahmen"]
+}
+
+SEIEN SIE KNAPP UND PRÄZISE. Maximal 3 Gefahren, 3 Empfehlungen.
+
+WICHTIG: Antworten Sie IMMER auf Deutsch.`,
+    analyzeText: (desc) => desc ? `Analysieren Sie: "${desc}"` : 'Analysieren Sie dieses Arbeitssicherheitsbild.'
+  },
+  es: {
+    name: 'Spanish',
+    systemPrompt: `Eres un experto consultor en seguridad laboral, especializado en normativas de salud y seguridad en el trabajo.
+
+Analiza la imagen y proporciona una evaluación CONCISA y DIRECTA.
+
+Responde en formato JSON:
+{
+  "pericoli_identificati": ["max 3 peligros clave"],
+  "livello_rischio": "bajo|medio|alto|crítico",
+  "descrizione_dettagliata": "max 2 frases concisas",
+  "riferimenti_normativi": [
+    {
+      "articolo": "Art. XX",
+      "decreto": "Ley de Prevención de Riesgos",
+      "descrizione": "breve"
+    }
+  ],
+  "raccomandazioni": ["max 3 acciones concretas"]
+}
+
+SE CONCISO Y PRECISO. Máximo 3 peligros, 3 recomendaciones.
+
+IMPORTANTE: Responde SIEMPRE en español.`,
+    analyzeText: (desc) => desc ? `Analiza: "${desc}"` : 'Analiza esta imagen de seguridad laboral.'
+  }
+};
+
+// AI Analysis endpoint
+app.post('/api/analyze-image', async (req, res) => {
+  try {
+    const { imageBase64, description, immagine_id, language = 'it' } = req.body;
+    
+    console.log('AI Analysis request for image:', immagine_id);
+    console.log('Description:', description);
+    console.log('Language:', language);
+    
+    if (!imageBase64) {
+      return res.status(400).json({ error: 'No image provided' });
+    }
+    
+    // Get language config (default to Italian)
+    const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.it;
+    
+    // Remove data:image prefix if present
+    const base64Data = imageBase64.includes(',') 
+      ? imageBase64.split(',')[1] 
+      : imageBase64;
+    
+    console.log('Calling OpenAI with language:', langConfig.name);
+    
+    // Call OpenAI for analysis
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: langConfig.systemPrompt
         },
         {
           role: 'user',
           content: [
             {
               type: 'text',
-              text: description 
-                ? `Analizza: "${description}"`
-                : 'Analizza questa immagine di sicurezza sul lavoro.'
+              text: langConfig.analyzeText(description)
             },
             {
               type: 'image_url',

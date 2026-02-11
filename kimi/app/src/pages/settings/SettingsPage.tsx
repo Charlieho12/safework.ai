@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage, LANGUAGE_NAMES, LANGUAGE_FLAGS } from '@/contexts/LanguageContext';
 import { 
   Bell, 
   Lock, 
@@ -20,6 +21,7 @@ import {
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   
@@ -31,7 +33,6 @@ export default function SettingsPage() {
       newsletter: false,
     },
     preferences: {
-      language: 'it',
       autoSave: true,
     },
     security: {
@@ -39,11 +40,6 @@ export default function SettingsPage() {
       sessionTimeout: '30',
     }
   });
-  
-  // Sync theme from context when component mounts
-  useEffect(() => {
-    // Theme is already synced via context
-  }, [theme]);
 
   const handleSave = async (section: string) => {
     setIsLoading(true);
@@ -251,6 +247,29 @@ export default function SettingsPage() {
                   setTheme(checked ? 'dark' : 'light');
                 }}
               />
+            </div>
+            <Separator />
+            <div className="space-y-3">
+              <div className="space-y-0.5">
+                <Label>Lingua Analisi AI</Label>
+                <p className="text-sm text-slate-500">
+                  Seleziona la lingua per l'analisi delle foto
+                </p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {(Object.keys(LANGUAGE_NAMES) as Array<keyof typeof LANGUAGE_NAMES>).map((lang) => (
+                  <Button
+                    key={lang}
+                    variant={language === lang ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setLanguage(lang)}
+                    className="w-full justify-start gap-2"
+                  >
+                    <span>{LANGUAGE_FLAGS[lang]}</span>
+                    <span>{LANGUAGE_NAMES[lang]}</span>
+                  </Button>
+                ))}
+              </div>
             </div>
             <Separator />
             <div className="flex items-center justify-between">

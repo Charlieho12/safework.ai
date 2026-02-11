@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { DataProvider } from '@/contexts/DataContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import { initializeStorage } from '@/lib/mockData';
 
 // Layout
@@ -174,11 +175,13 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <AuthProvider>
-          <DataProvider>
-            <AppProvider />
-          </DataProvider>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <DataProvider>
+              <AppProvider />
+            </DataProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </BrowserRouter>
   );

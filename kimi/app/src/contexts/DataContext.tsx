@@ -8,6 +8,7 @@ import type {
   AnalisiAI,
   DashboardStats
 } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { v4 as uuidv4 } from 'uuid';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -59,6 +60,7 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
+  const { language } = useLanguage();
   const [lavori, setLavori] = useState<Lavoro[]>([]);
   const [immagini, setImmagini] = useState<Immagine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -347,7 +349,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({
           immagine_id: immagineId,
           imageBase64: imageData,
-          description: desc
+          description: desc,
+          language
         }),
       });
       

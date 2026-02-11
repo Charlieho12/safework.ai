@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +31,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/api';
 export default function ReportPage() {
   const { lavoroId } = useParams<{ lavoroId: string }>();
   const { getLavoro, getImmaginiByLavoro, updateImmagine } = useData();
+  const { language } = useLanguage();
   
   const lavoro = lavoroId ? getLavoro(lavoroId) : null;
   const immaginiLavoro = lavoroId ? getImmaginiByLavoro(lavoroId) : [];
@@ -89,7 +91,8 @@ export default function ReportPage() {
           body: JSON.stringify({
             immagine_id: img.id,
             imageBase64: img.url_immagine,
-            description: img.descrizione_utente
+            description: img.descrizione_utente,
+            language
           }),
         });
         
