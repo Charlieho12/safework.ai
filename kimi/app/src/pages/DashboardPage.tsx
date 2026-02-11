@@ -20,10 +20,9 @@ import {
   Crown,
   BarChart3,
   PieChart,
-  Activity,
-  FileText
+  Activity
 } from 'lucide-react';
-import type { DashboardStats, Lavoro, Immagine } from '@/types';
+import type { DashboardStats, Lavoro } from '@/types';
 
 // Simple Pie Chart Component
 function RiskPieChart({ data }: { data: { basso: number; medio: number; alto: number; critico: number } }) {
