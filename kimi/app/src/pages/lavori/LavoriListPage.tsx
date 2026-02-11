@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -43,6 +44,7 @@ import {
 import type { Lavoro, StatoLavoro } from '@/types';
 
 export default function LavoriListPage() {
+  const { t } = useTranslation();
   const { lavori, deleteLavoro } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [statoFilter, setStatoFilter] = useState<StatoLavoro | 'all'>('all');
@@ -70,11 +72,11 @@ export default function LavoriListPage() {
   const getStatoBadge = (stato: StatoLavoro) => {
     switch (stato) {
       case 'in_corso':
-        return <Badge variant="default" className="bg-blue-500">In Corso</Badge>;
+        return <Badge variant="default" className="bg-blue-500">{t('jobs.status.inProgress')}</Badge>;
       case 'completato':
-        return <Badge variant="default" className="bg-green-500">Completato</Badge>;
+        return <Badge variant="default" className="bg-green-500">{t('jobs.status.completed')}</Badge>;
       case 'archiviato':
-        return <Badge variant="secondary">Archiviato</Badge>;
+        return <Badge variant="secondary">{t('jobs.status.archived')}</Badge>;
     }
   };
 
@@ -91,15 +93,15 @@ export default function LavoriListPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Lavori</h1>
+          <h1 className="text-3xl font-bold text-slate-900">{t('jobs.title')}</h1>
           <p className="text-slate-500 mt-1">
-            Gestisci i tuoi progetti e le ispezioni
+            {t('jobs.manageProjects')}
           </p>
         </div>
         <Link to="/lavori/nuovo">
           <Button className="gap-2">
             <Plus className="w-4 h-4" />
-            Nuovo Lavoro
+            {t('jobs.newJob')}
           </Button>
         </Link>
       </div>
@@ -111,7 +113,7 @@ export default function LavoriListPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Cerca per progetto o azienda..."
+                placeholder={t('jobs.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -122,13 +124,13 @@ export default function LavoriListPage() {
               onValueChange={(value) => setStatoFilter(value as StatoLavoro | 'all')}
             >
               <SelectTrigger className="w-full sm:w-44">
-                <SelectValue placeholder="Stato" />
+                <SelectValue placeholder={t('jobs.status.title')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tutti gli stati</SelectItem>
-                <SelectItem value="in_corso">In Corso</SelectItem>
-                <SelectItem value="completato">Completato</SelectItem>
-                <SelectItem value="archiviato">Archiviato</SelectItem>
+                <SelectItem value="all">{t('jobs.allStatuses')}</SelectItem>
+                <SelectItem value="in_corso">{t('jobs.status.inProgress')}</SelectItem>
+                <SelectItem value="completato">{t('jobs.status.completed')}</SelectItem>
+                <SelectItem value="archiviato">{t('jobs.status.archived')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -144,19 +146,19 @@ export default function LavoriListPage() {
                 <Building2 className="w-8 h-8 text-slate-400" />
               </div>
               <h3 className="text-lg font-medium text-slate-900 mb-2">
-                Nessun lavoro trovato
+                {t('jobs.noJobs')}
               </h3>
               <p className="text-slate-500 mb-6">
                 {searchQuery || statoFilter !== 'all' 
-                  ? 'Prova a modificare i filtri di ricerca'
-                  : 'Crea il tuo primo lavoro per iniziare'
+                  ? t('jobs.tryDifferentFilters')
+                  : t('jobs.createFirstToStart')
                 }
               </p>
               {!searchQuery && statoFilter === 'all' && (
                 <Link to="/lavori/nuovo">
                   <Button>
                     <Plus className="w-4 h-4 mr-2" />
-                    Crea Lavoro
+                    {t('jobs.createJob')}
                   </Button>
                 </Link>
               )}
@@ -187,11 +189,11 @@ export default function LavoriListPage() {
                     <div className="flex items-center gap-4 text-xs text-slate-400">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        Modificato il {formatDate(lavoro.data_modifica)}
+                        {t('jobs.modifiedOn')} {formatDate(lavoro.data_modifica)}
                       </span>
                       <span className="flex items-center gap-1">
                         <Camera className="w-3 h-3" />
-                        {lavoro.immagini_count || 0} foto
+                        {lavoro.immagini_count || 0} {t('jobs.photos')}
                       </span>
                     </div>
                   </div>
@@ -201,7 +203,7 @@ export default function LavoriListPage() {
                     <Link to={`/lavori/${lavoro.id}/camera`}>
                       <Button variant="outline" size="sm" className="gap-1">
                         <Camera className="w-4 h-4" />
-                        <span className="hidden sm:inline">Foto</span>
+                        <span className="hidden sm:inline">{t('jobDetail.photoGallery')}</span>
                       </Button>
                     </Link>
                     <Link to={`/lavori/${lavoro.id}/report`}>
@@ -225,7 +227,7 @@ export default function LavoriListPage() {
                         <DropdownMenuItem asChild>
                           <Link to={`/lavori/${lavoro.id}/modifica`}>
                             <Edit className="w-4 h-4 mr-2" />
-                            Modifica
+                            {t('common.edit')}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem 
@@ -233,7 +235,7 @@ export default function LavoriListPage() {
                           onClick={() => setLavoroToDelete(lavoro)}
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
-                          Elimina
+                          {t('common.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -249,16 +251,15 @@ export default function LavoriListPage() {
       <AlertDialog open={!!lavoroToDelete} onOpenChange={() => setLavoroToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+            <AlertDialogTitle>{t('jobDetail.deleteConfirm')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Sei sicuro di voler eliminare il lavoro "{lavoroToDelete?.nome_progetto}"? 
-              Questa azione eliminerà anche tutte le foto associate e non può essere annullata.
+              {t('jobDetail.deleteJobConfirm', { name: lavoroToDelete?.nome_progetto })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              Elimina
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
