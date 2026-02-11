@@ -26,15 +26,15 @@ import {
 import type { DashboardStats, Lavoro } from '@/types';
 
 // Simple Pie Chart Component
-function RiskPieChart({ data }: { data: { basso: number; medio: number; alto: number; critico: number } }) {
+function RiskPieChart({ data, labels }: { data: { basso: number; medio: number; alto: number; critico: number }; labels: { low: string; medium: string; high: string; critical: string; noData: string } }) {
   const total = data.basso + data.medio + data.alto + data.critico;
-  if (total === 0) return <div className="text-center text-slate-400 py-8">Nessun dato</div>;
+  if (total === 0) return <div className="text-center text-slate-400 py-8">{labels.noData}</div>;
   
   const items = [
-    { label: t('risk.low'), value: data.basso, color: '#22c55e' },
-    { label: t('risk.medium'), value: data.medio, color: '#eab308' },
-    { label: t('risk.high'), value: data.alto, color: '#f97316' },
-    { label: t('risk.critical'), value: data.critico, color: '#ef4444' },
+    { label: labels.low, value: data.basso, color: '#22c55e' },
+    { label: labels.medium, value: data.medio, color: '#eab308' },
+    { label: labels.high, value: data.alto, color: '#f97316' },
+    { label: labels.critical, value: data.critico, color: '#ef4444' },
   ].filter(i => i.value > 0);
   
   let cumulativePercent = 0;
@@ -178,11 +178,11 @@ export default function DashboardPage() {
   const getStatoBadge = (stato: string) => {
     switch (stato) {
       case 'in_corso':
-        return <Badge variant="default" className="bg-blue-500">In Corso</Badge>;
+        return <Badge variant="default" className="bg-blue-500">{t('jobs.status.inProgress')}</Badge>;
       case 'completato':
-        return <Badge variant="default" className="bg-green-500">Completato</Badge>;
+        return <Badge variant="default" className="bg-green-500">{t('jobs.status.completed')}</Badge>;
       case 'archiviato':
-        return <Badge variant="secondary">Archiviato</Badge>;
+        return <Badge variant="secondary">{t('jobs.status.archived')}</Badge>;
       default:
         return <Badge variant="outline">{stato}</Badge>;
     }
@@ -215,12 +215,12 @@ export default function DashboardPage() {
           <Zap className="w-5 h-5 text-primary" />
           <AlertDescription className="flex items-center justify-between">
             <span>
-              <strong>Prova gratuita attiva</strong> — Hai ancora {trialDays} giorni per testare tutte le funzionalità.
+              <strong>{t('dashboard.trialActive')}</strong> — {t('dashboard.daysLeft', { days: trialDays })}
             </span>
             <Link to="/pricing">
               <Button size="sm" className="ml-4">
                 <Crown className="w-4 h-4 mr-1" />
-                Passa a Pro
+                {t('dashboard.upgrade')}
               </Button>
             </Link>
           </AlertDescription>
@@ -231,23 +231,23 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">
-            Ciao, {user?.nome_completo?.split(' ')[0]}!
+            {t('dashboard.welcome')}, {user?.nome_completo?.split(' ')[0]}!
           </h1>
           <p className="text-slate-500 mt-1">
-            Benvenuto nella tua dashboard di SafeWork AI
+            {t('dashboard.subtitle')}
           </p>
         </div>
         <div className="flex gap-3">
           <Link to="/camera">
             <Button className="gap-2">
               <Camera className="w-4 h-4" />
-              Nuova Foto
+              {t('dashboard.newPhoto')}
             </Button>
           </Link>
           <Link to="/lavori/nuovo">
             <Button variant="outline" className="gap-2">
               <Plus className="w-4 h-4" />
-              Nuovo Lavoro
+              {t('dashboard.newJob')}
             </Button>
           </Link>
         </div>
@@ -258,7 +258,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-600">
-              Totale Lavori
+              {t('dashboard.totalJobs')}
             </CardTitle>
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-blue-600" />
@@ -269,7 +269,7 @@ export default function DashboardPage() {
               {stats?.totali_lavori || 0}
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              {stats?.lavori_in_corso || 0} in corso
+              {stats?.lavori_in_corso || 0} {t('jobs.status.inProgress').toLowerCase()}
             </p>
           </CardContent>
         </Card>
@@ -277,7 +277,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-600">
-              Immagini
+              {t('dashboard.images')}
             </CardTitle>
             <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
               <Camera className="w-5 h-5 text-purple-600" />
@@ -288,7 +288,7 @@ export default function DashboardPage() {
               {stats?.totali_immagini || 0}
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              Documentate con AI
+              {t('dashboard.documentedWithAI')}
             </p>
           </CardContent>
         </Card>
@@ -296,7 +296,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-600">
-              Pericoli Identificati
+              {t('dashboard.hazardsIdentified')}
             </CardTitle>
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-red-600" />
@@ -307,7 +307,7 @@ export default function DashboardPage() {
               {stats?.pericoli_identificati || 0}
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              Da analisi AI
+              {t('dashboard.fromAIAnalysis')}
             </p>
           </CardContent>
         </Card>
@@ -315,7 +315,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-600">
-              Report Generati
+              {t('dashboard.reportsGenerated')}
             </CardTitle>
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-green-600" />
@@ -326,7 +326,7 @@ export default function DashboardPage() {
               {stats?.lavori_completati || 0}
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              Lavori completati
+              {t('dashboard.completedJobs')}
             </p>
           </CardContent>
         </Card>
@@ -338,10 +338,19 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center gap-2">
             <PieChart className="w-5 h-5 text-slate-500" />
-            <CardTitle>Distribuzione Livelli di Rischio</CardTitle>
+            <CardTitle>{t('dashboard.riskDistribution')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <RiskPieChart data={stats?.distribuzione_rischio || { basso: 0, medio: 0, alto: 0, critico: 0 }} />
+            <RiskPieChart 
+              data={stats?.distribuzione_rischio || { basso: 0, medio: 0, alto: 0, critico: 0 }} 
+              labels={{
+                low: t('risk.low'),
+                medium: t('risk.medium'),
+                high: t('risk.high'),
+                critical: t('risk.critical'),
+                noData: t('dashboard.noData')
+              }}
+            />
           </CardContent>
         </Card>
 
@@ -349,12 +358,12 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center gap-2">
             <Activity className="w-5 h-5 text-slate-500" />
-            <CardTitle>Tasso di Completamento</CardTitle>
+            <CardTitle>{t('dashboard.completionRate')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
               <div className="flex justify-between mb-2">
-                <span className="text-sm text-slate-600">Lavori completati</span>
+                <span className="text-sm text-slate-600">{t('dashboard.completedJobs')}</span>
                 <span className="font-semibold">{analytics.completionRate}%</span>
               </div>
               <Progress value={analytics.completionRate} className="h-3" />
@@ -362,8 +371,8 @@ export default function DashboardPage() {
             
             <ProgressBarChart 
               data={[
-                { label: 'In Corso', value: stats?.lavori_in_corso || 0, color: '#3b82f6' },
-                { label: 'Completati', value: stats?.lavori_completati || 0, color: '#22c55e' },
+                { label: t('jobs.status.inProgress'), value: stats?.lavori_in_corso || 0, color: '#3b82f6' },
+                { label: t('jobs.status.completed'), value: stats?.lavori_completati || 0, color: '#22c55e' },
               ]}
               max={Math.max(stats?.totali_lavori || 1, 1)}
             />
@@ -374,11 +383,11 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center gap-2">
             <BarChart3 className="w-5 h-5 text-slate-500" />
-            <CardTitle>Lavori più Documentati</CardTitle>
+            <CardTitle>{t('dashboard.topDocumented')}</CardTitle>
           </CardHeader>
           <CardContent>
             {analytics.topWorks.length === 0 ? (
-              <p className="text-slate-500 text-center py-4">Nessun dato disponibile</p>
+              <p className="text-slate-500 text-center py-4">{t('dashboard.noData')}</p>
             ) : (
               <ProgressBarChart 
                 data={analytics.topWorks.map((w, i) => ({
@@ -396,11 +405,11 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-slate-500" />
-            <CardTitle>Pericoli più Frequenti</CardTitle>
+            <CardTitle>{t('dashboard.frequentHazards')}</CardTitle>
           </CardHeader>
           <CardContent>
             {analytics.topHazards.length === 0 ? (
-              <p className="text-slate-500 text-center py-4">Nessun pericolo identificato</p>
+              <p className="text-slate-500 text-center py-4">{t('jobDetail.noAnalysis')}</p>
             ) : (
               <div className="space-y-3">
                 {analytics.topHazards.map(([hazard, count], i) => (
@@ -411,7 +420,7 @@ export default function DashboardPage() {
                       </div>
                       <span className="font-medium text-slate-700">{hazard}</span>
                     </div>
-                    <Badge variant="secondary">{count} volte</Badge>
+                    <Badge variant="secondary">{count} {t('common.times')}</Badge>
                   </div>
                 ))}
               </div>
@@ -423,10 +432,10 @@ export default function DashboardPage() {
       {/* Lavori Recenti */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Lavori Recenti</CardTitle>
+          <CardTitle>{t('dashboard.recentJobs')}</CardTitle>
           <Link to="/lavori">
             <Button variant="ghost" size="sm" className="gap-1">
-              Vedi tutti
+              {t('dashboard.viewAll')}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
@@ -435,10 +444,10 @@ export default function DashboardPage() {
           {recentLavori.length === 0 ? (
             <div className="text-center py-8 text-slate-500">
               <Briefcase className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-              <p>Nessun lavoro trovato</p>
+              <p>{t('dashboard.noJobs')}</p>
               <Link to="/lavori/nuovo">
                 <Button variant="outline" className="mt-4">
-                  Crea il tuo primo lavoro
+                  {t('dashboard.createFirst')}
                 </Button>
               </Link>
             </div>
@@ -467,7 +476,7 @@ export default function DashboardPage() {
                       </span>
                       <span className="flex items-center gap-1">
                         <Camera className="w-3 h-3" />
-                        {lavoro.immagini_count || 0} foto
+                        {lavoro.immagini_count || 0} {t('jobs.photos')}
                       </span>
                     </div>
                   </div>
@@ -488,8 +497,8 @@ export default function DashboardPage() {
                 <Plus className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-medium text-slate-900">Nuovo Lavoro</h3>
-                <p className="text-sm text-slate-500">Crea un nuovo progetto</p>
+                <h3 className="font-medium text-slate-900">{t('dashboard.newJob')}</h3>
+                <p className="text-sm text-slate-500">{t('jobs.createNewProject')}</p>
               </div>
             </CardContent>
           </Card>
@@ -502,8 +511,8 @@ export default function DashboardPage() {
                 <Camera className="w-6 h-6 text-purple-600" />
               </div>
               <div>
-                <h3 className="font-medium text-slate-900">Scatta Foto</h3>
-                <p className="text-sm text-slate-500">Documenta un pericolo</p>
+                <h3 className="font-medium text-slate-900">{t('camera.takePhoto')}</h3>
+                <p className="text-sm text-slate-500">{t('dashboard.documentHazard')}</p>
               </div>
             </CardContent>
           </Card>
@@ -516,8 +525,8 @@ export default function DashboardPage() {
                 <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <h3 className="font-medium text-slate-900">Genera Report</h3>
-                <p className="text-sm text-slate-500">Crea report professionali</p>
+                <h3 className="font-medium text-slate-900">{t('report.generateReport')}</h3>
+                <p className="text-sm text-slate-500">{t('report.createProfessional')}</p>
               </div>
             </CardContent>
           </Card>

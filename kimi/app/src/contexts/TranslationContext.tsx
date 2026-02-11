@@ -35,10 +35,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'common.no': 'No',
     'common.or': 'oppure',
     'common.and': 'e',
+    'common.times': 'volte',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
     'dashboard.welcome': 'Ciao',
+    'dashboard.documentHazard': 'Documenta un pericolo',
     'dashboard.subtitle': 'Benvenuto nella tua dashboard di SafeWork AI',
     'dashboard.newPhoto': 'Nuova Foto',
     'dashboard.newJob': 'Nuovo Lavoro',
@@ -79,6 +81,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'jobs.filterAll': 'Tutti',
     'jobs.filterInProgress': 'In Corso',
     'jobs.filterCompleted': 'Completati',
+    'jobs.createNewProject': 'Crea un nuovo progetto',
     
     // Job Detail
     'jobDetail.addPhoto': 'Aggiungi Foto',
@@ -110,7 +113,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Camera
     'camera.title': 'Scatta Foto',
-    'camera.takePhoto': 'Scatta',
+    'camera.takePhoto': 'Scatta Foto',
     'camera.retake': 'Riscatta',
     'camera.continue': 'Continua',
     'camera.addDescription': 'Aggiungi descrizione',
@@ -124,6 +127,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Report
     'report.title': 'Genera Report',
+    'report.generateReport': 'Genera Report',
+    'report.createProfessional': 'Crea report professionali',
     'report.backToJob': 'Torna al lavoro',
     'report.reportOptions': 'Opzioni Report',
     'report.format': 'Formato',
@@ -257,10 +262,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'common.no': 'No',
     'common.or': 'or',
     'common.and': 'and',
+    'common.times': 'times',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
     'dashboard.welcome': 'Hello',
+    'dashboard.documentHazard': 'Document a hazard',
     'dashboard.subtitle': 'Welcome to your SafeWork AI dashboard',
     'dashboard.newPhoto': 'New Photo',
     'dashboard.newJob': 'New Project',
@@ -301,6 +308,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'jobs.filterAll': 'All',
     'jobs.filterInProgress': 'In Progress',
     'jobs.filterCompleted': 'Completed',
+    'jobs.createNewProject': 'Create a new project',
     
     // Job Detail
     'jobDetail.addPhoto': 'Add Photo',
@@ -332,7 +340,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Camera
     'camera.title': 'Take Photo',
-    'camera.takePhoto': 'Capture',
+    'camera.takePhoto': 'Take Photo',
     'camera.retake': 'Retake',
     'camera.continue': 'Continue',
     'camera.addDescription': 'Add description',
@@ -346,6 +354,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Report
     'report.title': 'Generate Report',
+    'report.generateReport': 'Generate Report',
+    'report.createProfessional': 'Create professional reports',
     'report.backToJob': 'Back to project',
     'report.reportOptions': 'Report Options',
     'report.format': 'Format',
@@ -479,10 +489,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'common.no': 'Non',
     'common.or': 'ou',
     'common.and': 'et',
+    'common.times': 'fois',
     
     // Dashboard
     'dashboard.title': 'Tableau de Bord',
     'dashboard.welcome': 'Bonjour',
+    'dashboard.documentHazard': 'Documentez un danger',
     'dashboard.subtitle': 'Bienvenue sur votre tableau de bord SafeWork AI',
     'dashboard.newPhoto': 'Nouvelle Photo',
     'dashboard.newJob': 'Nouveau Projet',
@@ -523,6 +535,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'jobs.filterAll': 'Tous',
     'jobs.filterInProgress': 'En Cours',
     'jobs.filterCompleted': 'Terminés',
+    'jobs.createNewProject': 'Créer un nouveau projet',
     
     // Job Detail
     'jobDetail.addPhoto': 'Ajouter Photo',
@@ -554,7 +567,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Camera
     'camera.title': 'Prendre Photo',
-    'camera.takePhoto': 'Capturer',
+    'camera.takePhoto': 'Prendre Photo',
     'camera.retake': 'Reprendre',
     'camera.continue': 'Continuer',
     'camera.addDescription': 'Ajouter description',
@@ -568,6 +581,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Report
     'report.title': 'Générer Rapport',
+    'report.generateReport': 'Générer Rapport',
+    'report.createProfessional': 'Créer des rapports professionnels',
     'report.backToJob': 'Retour au projet',
     'report.reportOptions': 'Options Rapport',
     'report.format': 'Format',
@@ -701,10 +716,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'common.no': 'Nein',
     'common.or': 'oder',
     'common.and': 'und',
+    'common.times': 'mal',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
     'dashboard.welcome': 'Hallo',
+    'dashboard.documentHazard': 'Dokumentieren Sie eine Gefahr',
     'dashboard.subtitle': 'Willkommen in Ihrem SafeWork AI Dashboard',
     'dashboard.newPhoto': 'Neues Foto',
     'dashboard.newJob': 'Neues Projekt',
@@ -745,6 +762,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'jobs.filterAll': 'Alle',
     'jobs.filterInProgress': 'In Bearbeitung',
     'jobs.filterCompleted': 'Abgeschlossen',
+    'jobs.createNewProject': 'Erstellen Sie ein neues Projekt',
     
     // Job Detail
     'jobDetail.addPhoto': 'Foto Hinzufügen',
@@ -776,7 +794,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Camera
     'camera.title': 'Foto Aufnehmen',
-    'camera.takePhoto': 'Aufnehmen',
+    'camera.takePhoto': 'Foto Aufnehmen',
     'camera.retake': 'Neu Aufnehmen',
     'camera.continue': 'Weiter',
     'camera.addDescription': 'Beschreibung hinzufügen',
@@ -790,6 +808,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Report
     'report.title': 'Bericht Erstellen',
+    'report.generateReport': 'Bericht Erstellen',
+    'report.createProfessional': 'Erstellen Sie professionelle Berichte',
     'report.backToJob': 'Zurück zum Projekt',
     'report.reportOptions': 'Berichtoptionen',
     'report.format': 'Format',
@@ -923,10 +943,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'common.no': 'No',
     'common.or': 'o',
     'common.and': 'y',
+    'common.times': 'veces',
     
     // Dashboard
     'dashboard.title': 'Panel de Control',
     'dashboard.welcome': 'Hola',
+    'dashboard.documentHazard': 'Documente un peligro',
     'dashboard.subtitle': 'Bienvenido a tu panel de control de SafeWork AI',
     'dashboard.newPhoto': 'Nueva Foto',
     'dashboard.newJob': 'Nuevo Proyecto',
@@ -967,6 +989,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'jobs.filterAll': 'Todos',
     'jobs.filterInProgress': 'En Progreso',
     'jobs.filterCompleted': 'Completados',
+    'jobs.createNewProject': 'Crea un nuevo proyecto',
     
     // Job Detail
     'jobDetail.addPhoto': 'Añadir Foto',
@@ -998,7 +1021,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Camera
     'camera.title': 'Tomar Foto',
-    'camera.takePhoto': 'Capturar',
+    'camera.takePhoto': 'Tomar Foto',
     'camera.retake': 'Volver a tomar',
     'camera.continue': 'Continuar',
     'camera.addDescription': 'Añadir descripción',
@@ -1012,6 +1035,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Report
     'report.title': 'Generar Informe',
+    'report.generateReport': 'Generar Informe',
+    'report.createProfessional': 'Crear informes profesionales',
     'report.backToJob': 'Volver al proyecto',
     'report.reportOptions': 'Opciones de Informe',
     'report.format': 'Formato',
