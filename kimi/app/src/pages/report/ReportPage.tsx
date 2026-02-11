@@ -11,7 +11,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   ArrowLeft, 
   FileText, 
-  Download, 
   Loader2, 
   CheckCircle,
   AlertTriangle,

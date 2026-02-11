@@ -8,7 +8,7 @@ export type MetodoInput = 'testo' | 'voice';
 
 export type LivelloRischio = 'basso' | 'medio' | 'alto' | 'critico';
 
-export type FormatoReport = 'docx' | 'pdf';
+export type FormatoReport = 'docx' | 'pdf' | 'csv' | 'xls';
 
 // Utente
 export interface User {
