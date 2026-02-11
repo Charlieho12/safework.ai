@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +40,7 @@ import {
 import type { Immagine, LivelloRischio } from '@/types';
 
 export default function LavoroDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getLavoro, getImmaginiByLavoro, deleteLavoro, deleteImmagine, requestAIAnalysis } = useData();
@@ -54,10 +56,10 @@ export default function LavoroDetailPage() {
   if (!lavoro) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">Lavoro non trovato</h2>
-        <p className="text-slate-500 mb-4">Il lavoro che stai cercando non esiste</p>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">{t('jobs.jobNotFound')}</h2>
+        <p className="text-slate-500 mb-4">{t('jobs.jobNotFoundDesc')}</p>
         <Link to="/lavori">
-          <Button>Torna ai Lavori</Button>
+          <Button>{t('jobs.backToJobs')}</Button>
         </Link>
       </div>
     );
@@ -85,11 +87,11 @@ export default function LavoroDetailPage() {
   const getStatoBadge = (stato: string) => {
     switch (stato) {
       case 'in_corso':
-        return <Badge variant="default" className="bg-blue-500">In Corso</Badge>;
+        return <Badge variant="default" className="bg-blue-500">{t('jobs.status.inProgress')}</Badge>;
       case 'completato':
-        return <Badge variant="default" className="bg-green-500">Completato</Badge>;
+        return <Badge variant="default" className="bg-green-500">{t('jobs.status.completed')}</Badge>;
       case 'archiviato':
-        return <Badge variant="secondary">Archiviato</Badge>;
+        return <Badge variant="secondary">{t('jobs.status.archived')}</Badge>;
       default:
         return <Badge variant="outline">{stato}</Badge>;
     }
@@ -98,13 +100,13 @@ export default function LavoroDetailPage() {
   const getRischioBadge = (livello: LivelloRischio) => {
     switch (livello) {
       case 'basso':
-        return <Badge className="bg-green-500">Basso</Badge>;
+        return <Badge className="bg-green-500">{t('risk.low')}</Badge>;
       case 'medio':
-        return <Badge className="bg-yellow-500">Medio</Badge>;
+        return <Badge className="bg-yellow-500">{t('risk.medium')}</Badge>;
       case 'alto':
-        return <Badge className="bg-orange-500">Alto</Badge>;
+        return <Badge className="bg-orange-500">{t('risk.high')}</Badge>;
       case 'critico':
-        return <Badge className="bg-red-500">Critico</Badge>;
+        return <Badge className="bg-red-500">{t('risk.critical')}</Badge>;
     }
   };
 
@@ -143,11 +145,11 @@ export default function LavoroDetailPage() {
             <div className="flex items-center gap-4 text-sm text-slate-400">
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                Creato il {formatDate(lavoro.data_creazione)}
+                {t('jobs.createdOn')} {formatDate(lavoro.data_creazione)}
               </span>
               <span className="flex items-center gap-1">
                 <Camera className="w-4 h-4" />
-                {immagini.length} foto
+                {immagini.length} {t('jobs.photos')}
               </span>
             </div>
           </div>
@@ -157,7 +159,7 @@ export default function LavoroDetailPage() {
           <Link to={`/lavori/${lavoro.id}/camera`}>
             <Button className="gap-2">
               <Camera className="w-4 h-4" />
-              Aggiungi Foto
+              {t('jobDetail.addPhoto')}
             </Button>
           </Link>
           <Link to={`/lavori/${lavoro.id}/report`}>
@@ -200,7 +202,7 @@ export default function LavoroDetailPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-slate-900">{immagini.length}</p>
-              <p className="text-sm text-slate-500">Foto totali</p>
+              <p className="text-sm text-slate-500">{t('jobDetail.totalPhotos')}</p>
             </div>
           </CardContent>
         </Card>
@@ -211,7 +213,7 @@ export default function LavoroDetailPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-slate-900">{immaginiConAnalisi}</p>
-              <p className="text-sm text-slate-500">Analisi completate</p>
+              <p className="text-sm text-slate-500">{t('jobDetail.analysisCompleted')}</p>
             </div>
           </CardContent>
         </Card>
@@ -222,7 +224,7 @@ export default function LavoroDetailPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-slate-900">{immaginiInAttesa}</p>
-              <p className="text-sm text-slate-500">In attesa di analisi</p>
+              <p className="text-sm text-slate-500">{t('jobDetail.waitingForAnalysis')}</p>
             </div>
           </CardContent>
         </Card>
@@ -231,8 +233,8 @@ export default function LavoroDetailPage() {
       {/* Tabs */}
       <Tabs defaultValue="galleria" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="galleria">Galleria Foto</TabsTrigger>
-          <TabsTrigger value="analisi">Analisi AI</TabsTrigger>
+          <TabsTrigger value="galleria">{t('jobDetail.photoGallery')}</TabsTrigger>
+          <TabsTrigger value="analisi">{t('jobDetail.aiAnalysis')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="galleria" className="space-y-4">
@@ -241,15 +243,15 @@ export default function LavoroDetailPage() {
               <CardContent className="p-12 text-center">
                 <Camera className="w-16 h-16 mx-auto mb-4 text-slate-300" />
                 <h3 className="text-lg font-medium text-slate-900 mb-2">
-                  Nessuna foto ancora
+                  {t('jobDetail.noPhotos')}
                 </h3>
                 <p className="text-slate-500 mb-6">
-                  Inizia a documentare i pericoli scattando foto
+                  {t('jobDetail.startDocumenting')}
                 </p>
                 <Link to={`/lavori/${lavoro.id}/camera`}>
                   <Button>
                     <Camera className="w-4 h-4 mr-2" />
-                    Scatta Foto
+                    {t('jobDetail.takePhoto')}
                   </Button>
                 </Link>
               </CardContent>
@@ -264,7 +266,7 @@ export default function LavoroDetailPage() {
                 >
                   <img
                     src={immagine.url_immagine}
-                    alt={`Foto ${index + 1}`}
+                    alt={`${t('jobs.photos')} ${index + 1}`}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
                   {immagine.analisi_ai && (
@@ -275,7 +277,7 @@ export default function LavoroDetailPage() {
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                   <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                     <p className="text-white text-xs truncate">
-                      {immagine.descrizione_utente || 'Nessuna descrizione'}
+                      {immagine.descrizione_utente || t('jobDetail.noDescription')}
                     </p>
                   </div>
                 </div>
@@ -290,10 +292,10 @@ export default function LavoroDetailPage() {
               <CardContent className="p-12 text-center">
                 <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-slate-300" />
                 <h3 className="text-lg font-medium text-slate-900 mb-2">
-                  Nessuna analisi disponibile
+                  {t('jobDetail.noAnalysis')}
                 </h3>
                 <p className="text-slate-500">
-                  Le analisi AI appariranno qui dopo aver scattato le foto
+                  {t('jobDetail.analysisAppears')}
                 </p>
               </CardContent>
             </Card>
@@ -308,7 +310,7 @@ export default function LavoroDetailPage() {
                     >
                       <img
                         src={immagine.url_immagine}
-                        alt="Foto"
+                        alt={t('jobs.photos')}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -343,7 +345,7 @@ export default function LavoroDetailPage() {
                           <div className="space-y-3">
                             <div>
                               <p className="text-sm font-medium text-slate-900 mb-2">
-                                Pericoli Identificati:
+                                {t('jobDetail.hazards')}:
                               </p>
                               <div className="flex flex-wrap gap-2">
                                 {immagine.analisi_ai.pericoli_identificati.map((pericolo, idx) => (
@@ -357,7 +359,7 @@ export default function LavoroDetailPage() {
                             
                             <div>
                               <p className="text-sm font-medium text-slate-900 mb-2">
-                                Raccomandazioni:
+                                {t('jobDetail.recommendations')}:
                               </p>
                               <ul className="list-disc list-inside text-sm text-slate-600 space-y-1">
                                 {immagine.analisi_ai.raccomandazioni.map((rec, idx) => (
@@ -391,31 +393,31 @@ export default function LavoroDetailPage() {
               </div>
               <div className="w-full md:w-80 p-6 bg-white overflow-y-auto max-h-[40vh] md:max-h-[80vh]">
                 <DialogHeader>
-                  <DialogTitle className="text-lg">Dettagli Foto</DialogTitle>
+                  <DialogTitle className="text-lg">{t('jobDetail.photoDetails')}</DialogTitle>
                 </DialogHeader>
                 
                 <div className="space-y-4 mt-4">
                   <div>
-                    <p className="text-sm font-medium text-slate-500 mb-1">Descrizione</p>
+                    <p className="text-sm font-medium text-slate-500 mb-1">{t('jobDetail.description')}</p>
                     <p className="text-slate-900">
-                      {selectedImage.descrizione_utente || 'Nessuna descrizione'}
+                      {selectedImage.descrizione_utente || t('jobDetail.noDescription')}
                     </p>
                     {selectedImage.metodo_input === 'voice' && (
                       <Badge variant="outline" className="mt-2 gap-1">
                         <Mic className="w-3 h-3" />
-                        Input Vocale
+                        {t('jobDetail.voiceInput')}
                       </Badge>
                     )}
                   </div>
                   
                   <div>
-                    <p className="text-sm font-medium text-slate-500 mb-1">Data e Ora</p>
+                    <p className="text-sm font-medium text-slate-500 mb-1">{t('jobDetail.date')}</p>
                     <p className="text-slate-900">{formatDate(selectedImage.timestamp)}</p>
                   </div>
                   
                   {selectedImage.geolocalizzazione && (
                     <div>
-                      <p className="text-sm font-medium text-slate-500 mb-1">Posizione</p>
+                      <p className="text-sm font-medium text-slate-500 mb-1">{t('jobDetail.location')}</p>
                       <div className="flex items-center gap-2 text-slate-900">
                         <MapPin className="w-4 h-4" />
                         <span>
@@ -427,7 +429,7 @@ export default function LavoroDetailPage() {
                   
                   {selectedImage.analisi_ai && (
                     <div className="pt-4 border-t border-slate-200">
-                      <p className="text-sm font-medium text-slate-500 mb-2">Analisi AI</p>
+                      <p className="text-sm font-medium text-slate-500 mb-2">{t('jobDetail.aiAnalysis')}</p>
                       <div className="mb-3">
                         {getRischioBadge(selectedImage.analisi_ai.livello_rischio)}
                       </div>
@@ -435,7 +437,7 @@ export default function LavoroDetailPage() {
                         {selectedImage.analisi_ai.descrizione_dettagliata}
                       </p>
                       <div className="space-y-2">
-                        <p className="text-sm font-medium text-slate-900">Pericoli:</p>
+                        <p className="text-sm font-medium text-slate-900">{t('jobDetail.hazards')}:</p>
                         <div className="flex flex-wrap gap-1">
                           {selectedImage.analisi_ai.pericoli_identificati.map((p, i) => (
                             <Badge key={i} variant="outline" className="text-xs">{p}</Badge>
@@ -453,7 +455,7 @@ export default function LavoroDetailPage() {
                       onClick={() => setShowDeletePhotoDialog(true)}
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
-                      Elimina Foto
+                      {t('jobDetail.deletePhoto')}
                     </Button>
                   </div>
                 </div>
@@ -467,16 +469,15 @@ export default function LavoroDetailPage() {
       <AlertDialog open={showDeletePhotoDialog} onOpenChange={setShowDeletePhotoDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Conferma eliminazione foto</AlertDialogTitle>
+            <AlertDialogTitle>{t('jobDetail.deletePhotoConfirm')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Sei sicuro di voler eliminare questa foto? 
-              L'analisi AI associata verrà eliminata e non può essere annullata.
+              {t('jobDetail.deletePhotoWarning')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeletePhoto} className="bg-red-600 hover:bg-red-700">
-              Elimina
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -486,16 +487,15 @@ export default function LavoroDetailPage() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+            <AlertDialogTitle>{t('jobDetail.deleteConfirm')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Sei sicuro di voler eliminare il lavoro "{lavoro.nome_progetto}"? 
-              Questa azione eliminerà anche tutte le {immagini.length} foto associate e non può essere annullata.
+              {t('jobDetail.deleteJobConfirm', { name: lavoro.nome_progetto, count: immagini.length })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              Elimina
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

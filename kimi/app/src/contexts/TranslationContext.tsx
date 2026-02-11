@@ -90,8 +90,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'jobs.createJob': 'Crea Lavoro',
     'jobs.modifiedOn': 'Modificato il',
     'jobs.status.title': 'Stato',
+    'jobs.jobNotFound': 'Lavoro non trovato',
+    'jobs.jobNotFoundDesc': 'Il lavoro che stai cercando non esiste',
+    'jobs.backToJobs': 'Torna ai Lavori',
+    'jobs.createdOn': 'Creato il',
     'jobDetail.deleteConfirm': 'Conferma eliminazione',
-    'jobDetail.deleteJobConfirm': 'Sei sicuro di voler eliminare il lavoro "{name}"? Questa azione eliminerà anche tutte le foto associate e non può essere annullata.',
+    'jobDetail.deleteJobConfirm': 'Sei sicuro di voler eliminare il lavoro "{name}"? Questa azione eliminerà anche tutte le {count} foto associate e non può essere annullata.',
     
     // Job Detail
     'jobDetail.addPhoto': 'Aggiungi Foto',
@@ -336,8 +340,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'jobs.createJob': 'Create Project',
     'jobs.modifiedOn': 'Modified on',
     'jobs.status.title': 'Status',
+    'jobs.jobNotFound': 'Project not found',
+    'jobs.jobNotFoundDesc': 'The project you are looking for does not exist',
+    'jobs.backToJobs': 'Back to Projects',
+    'jobs.createdOn': 'Created on',
     'jobDetail.deleteConfirm': 'Confirm deletion',
-    'jobDetail.deleteJobConfirm': 'Are you sure you want to delete the project "{name}"? This action will also delete all associated photos and cannot be undone.',
+    'jobDetail.deleteJobConfirm': 'Are you sure you want to delete the project "{name}"? This action will also delete all {count} associated photos and cannot be undone.',
     
     // Job Detail
     'jobDetail.addPhoto': 'Add Photo',
@@ -582,8 +590,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'jobs.createJob': 'Créer Projet',
     'jobs.modifiedOn': 'Modifié le',
     'jobs.status.title': 'Statut',
+    'jobs.jobNotFound': 'Projet non trouvé',
+    'jobs.jobNotFoundDesc': 'Le projet que vous recherchez n\'existe pas',
+    'jobs.backToJobs': 'Retour aux Projets',
+    'jobs.createdOn': 'Créé le',
     'jobDetail.deleteConfirm': 'Confirmer la suppression',
-    'jobDetail.deleteJobConfirm': 'Êtes-vous sûr de vouloir supprimer le projet "{name}"? Cette action supprimera également toutes les photos associées et ne peut pas être annulée.',
+    'jobDetail.deleteJobConfirm': 'Êtes-vous sûr de vouloir supprimer le projet "{name}"? Cette action supprimera également toutes les {count} photos associées et ne peut pas être annulée.',
     
     // Job Detail
     'jobDetail.addPhoto': 'Ajouter Photo',
@@ -828,8 +840,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'jobs.createJob': 'Projekt Erstellen',
     'jobs.modifiedOn': 'Geändert am',
     'jobs.status.title': 'Status',
+    'jobs.jobNotFound': 'Projekt nicht gefunden',
+    'jobs.jobNotFoundDesc': 'Das Projekt, das Sie suchen, existiert nicht',
+    'jobs.backToJobs': 'Zurück zu Projekten',
+    'jobs.createdOn': 'Erstellt am',
     'jobDetail.deleteConfirm': 'Löschung bestätigen',
-    'jobDetail.deleteJobConfirm': 'Sind Sie sicher, dass Sie das Projekt "{name}" löschen möchten? Diese Aktion löscht auch alle zugehörigen Fotos und kann nicht rückgängig gemacht werden.',
+    'jobDetail.deleteJobConfirm': 'Sind Sie sicher, dass Sie das Projekt "{name}" löschen möchten? Diese Aktion löscht auch alle {count} zugehörigen Fotos und kann nicht rückgängig gemacht werden.',
     
     // Job Detail
     'jobDetail.addPhoto': 'Foto Hinzufügen',
@@ -1074,8 +1090,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'jobs.createJob': 'Crear Proyecto',
     'jobs.modifiedOn': 'Modificado el',
     'jobs.status.title': 'Estado',
+    'jobs.jobNotFound': 'Proyecto no encontrado',
+    'jobs.jobNotFoundDesc': 'El proyecto que buscas no existe',
+    'jobs.backToJobs': 'Volver a Proyectos',
+    'jobs.createdOn': 'Creado el',
     'jobDetail.deleteConfirm': 'Confirmar eliminación',
-    'jobDetail.deleteJobConfirm': '¿Estás seguro de que quieres eliminar el proyecto "{name}"? Esta acción también eliminará todas las fotos asociadas y no se puede deshacer.',
+    'jobDetail.deleteJobConfirm': '¿Estás seguro de que quieres eliminar el proyecto "{name}"? Esta acción también eliminará todas las {count} fotos asociadas y no se puede deshacer.',
     
     // Job Detail
     'jobDetail.addPhoto': 'Añadir Foto',
