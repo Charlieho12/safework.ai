@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { DataProvider } from '@/contexts/DataContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { TranslationProvider } from '@/contexts/TranslationContext';
 import { initializeStorage } from '@/lib/mockData';
 
 // Layout
@@ -176,11 +177,13 @@ function App() {
     <BrowserRouter>
       <ThemeProvider>
         <LanguageProvider>
-          <AuthProvider>
-            <DataProvider>
-              <AppProvider />
-            </DataProvider>
-          </AuthProvider>
+          <TranslationProvider>
+            <AuthProvider>
+              <DataProvider>
+                <AppProvider />
+              </DataProvider>
+            </AuthProvider>
+          </TranslationProvider>
         </LanguageProvider>
       </ThemeProvider>
     </BrowserRouter>

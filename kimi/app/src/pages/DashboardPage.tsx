@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,10 +31,10 @@ function RiskPieChart({ data }: { data: { basso: number; medio: number; alto: nu
   if (total === 0) return <div className="text-center text-slate-400 py-8">Nessun dato</div>;
   
   const items = [
-    { label: 'Basso', value: data.basso, color: '#22c55e' },
-    { label: 'Medio', value: data.medio, color: '#eab308' },
-    { label: 'Alto', value: data.alto, color: '#f97316' },
-    { label: 'Critico', value: data.critico, color: '#ef4444' },
+    { label: t('risk.low'), value: data.basso, color: '#22c55e' },
+    { label: t('risk.medium'), value: data.medio, color: '#eab308' },
+    { label: t('risk.high'), value: data.alto, color: '#f97316' },
+    { label: t('risk.critical'), value: data.critico, color: '#ef4444' },
   ].filter(i => i.value > 0);
   
   let cumulativePercent = 0;
@@ -115,6 +116,7 @@ function ProgressBarChart({
 
 export default function DashboardPage() {
   const { user, payment, getTrialDaysLeft } = useAuth();
+  const { t } = useTranslation();
   const { lavori, immagini, getDashboardStats } = useData();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentLavori, setRecentLavori] = useState<Lavoro[]>([]);

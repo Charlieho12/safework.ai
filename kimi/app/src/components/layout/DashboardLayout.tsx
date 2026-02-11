@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/contexts/TranslationContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 // import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -27,22 +28,26 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Lavori', href: '/lavori', icon: Briefcase },
+const getNavigation = (t: (key: string) => string) => [
+  { name: t('nav.dashboard'), href: '/dashboard', icon: LayoutDashboard },
+  { name: t('nav.lavori'), href: '/lavori', icon: Briefcase },
   { name: 'CSTA', href: '/csta', icon: Globe },
 ];
 
-const userNavigation = [
-  { name: 'Profilo', href: '/profile', icon: User },
-  { name: 'Impostazioni', href: '/settings', icon: Settings },
+const getUserNavigation = (t: (key: string) => string) => [
+  { name: t('nav.profile'), href: '/profile', icon: User },
+  { name: t('nav.settings'), href: '/settings', icon: Settings },
 ];
 
 export default function DashboardLayout() {
   const { user, logout, payment, getTrialDaysLeft } = useAuth();
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const navigation = getNavigation(t);
+  const userNavigation = getUserNavigation(t);
 
   const handleLogout = () => {
     logout();
@@ -91,15 +96,15 @@ export default function DashboardLayout() {
               <Zap className="w-4 h-4" />
               <span>
                 {trialDays > 1 
-                  ? `Hai ${trialDays} giorni di prova gratuita rimasti`
-                  : `Ultimo giorno di prova gratuita!`
+                  ? t('dashboard.daysLeft', { days: trialDays })
+                  : t('dashboard.trialLastDay')
                 }
               </span>
             </div>
             <Link to="/pricing">
               <Button size="sm" variant="secondary" className="text-xs">
                 <Crown className="w-3 h-3 mr-1" />
-                Passa a Pro
+                {t('dashboard.upgrade')}
               </Button>
             </Link>
           </div>
@@ -128,11 +133,11 @@ export default function DashboardLayout() {
                 {isTrial && (
                   <div className="p-4 bg-primary/10 border-b border-slate-200">
                     <p className="text-sm font-medium text-primary">
-                      {trialDays} giorni di prova rimasti
+                      {t('dashboard.daysLeft', { days: trialDays })}
                     </p>
                     <Link to="/pricing" onClick={() => setMobileMenuOpen(false)}>
                       <Button size="sm" className="w-full mt-2">
-                        Passa a Pro
+                        {t('dashboard.upgrade')}
                       </Button>
                     </Link>
                   </div>
@@ -179,7 +184,7 @@ export default function DashboardLayout() {
                     className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full"
                   >
                     <LogOut className="w-5 h-5" />
-                    Logout
+                    {t('nav.logout')}
                   </button>
                 </div>
               </div>
@@ -199,7 +204,7 @@ export default function DashboardLayout() {
               </div>
               <div>
                 <h1 className="font-bold text-slate-900">SafeWork AI</h1>
-                <p className="text-xs text-slate-500">Sicurezza sul Lavoro</p>
+                <p className="text-xs text-slate-500">{t('nav.safetyAtWork')}</p>
               </div>
             </Link>
           </div>
@@ -214,7 +219,7 @@ export default function DashboardLayout() {
             {/* Piano attuale */}
             {planName && (
               <div className="flex items-center justify-between px-2">
-                <span className="text-xs text-slate-500">Piano</span>
+                <span className="text-xs text-slate-500">{t('profile.plan')}</span>
                 <Badge variant={isTrial ? 'secondary' : 'default'} className="text-xs">
                   {planName}
                 </Badge>
@@ -226,7 +231,7 @@ export default function DashboardLayout() {
               <Link to="/pricing">
                 <Button size="sm" className="w-full text-xs">
                   <Crown className="w-3 h-3 mr-1" />
-                  Passa a Pro
+                  {t('dashboard.upgrade')}
                 </Button>
               </Link>
             )}
@@ -245,19 +250,19 @@ export default function DashboardLayout() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Il mio account</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('profile.myAccount')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/profile')}>
                   <User className="w-4 h-4 mr-2" />
-                  Profilo
+                  {t('nav.profile')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/settings')}>
                   <Settings className="w-4 h-4 mr-2" />
-                  Impostazioni
+                  {t('nav.settings')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/pricing')}>
                   <Crown className="w-4 h-4 mr-2" />
-                  Piano e Fatturazione
+                  {t('profile.planAndBilling')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
