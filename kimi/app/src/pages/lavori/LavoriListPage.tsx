@@ -253,7 +253,7 @@ export default function LavoriListPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t('jobDetail.deleteConfirm')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('jobDetail.deleteJobConfirm', { name: lavoroToDelete?.nome_progetto })}
+              {t('jobDetail.deleteJobConfirm', { name: lavoroToDelete?.nome_progetto || '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
