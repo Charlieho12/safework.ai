@@ -21,8 +21,10 @@ import {
   Crown,
   BarChart3,
   PieChart,
-  Activity
+  Activity,
+  MapPin
 } from 'lucide-react';
+import MapView from '@/components/MapView';
 import type { DashboardStats, Lavoro } from '@/types';
 
 // Simple Pie Chart Component
@@ -428,6 +430,19 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Map View */}
+      {immagini.some(img => img.geolocalizzazione) && (
+        <Card>
+          <CardHeader className="flex flex-row items-center gap-2">
+            <MapPin className="w-5 h-5 text-slate-500" />
+            <CardTitle>{t('dashboard.mapView')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <MapView images={immagini} height="350px" />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Lavori Recenti */}
       <Card>

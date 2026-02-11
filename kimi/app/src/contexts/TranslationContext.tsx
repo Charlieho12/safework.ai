@@ -247,6 +247,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Misc
     'dashboard.noData': 'Nessun dato',
+    'dashboard.mapView': 'Mappa delle Foto',
   },
   en: {
     // Navigation
@@ -492,6 +493,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Misc
     'dashboard.noData': 'No data',
+    'dashboard.mapView': 'Photo Map',
   },
   fr: {
     // Navigation
@@ -737,6 +739,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Misc
     'dashboard.noData': 'Aucune donnée',
+    'dashboard.mapView': 'Carte des Photos',
   },
   de: {
     // Navigation
@@ -982,6 +985,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     
     // Misc
     'dashboard.noData': 'Keine Daten',
+    'dashboard.mapView': 'Fotokarte',
   },
   es: {
     // Navigation
