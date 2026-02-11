@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { Document, Packer, Paragraph, TextRun, ImageRun, HeadingLevel, AlignmentType } from 'docx';
 import { saveAs } from 'file-saver';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import type { FormatoReport, AnalisiAI } from '@/types';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -360,6 +362,94 @@ export default function ReportPage() {
     saveAs(blob, `Report_${lavoro.nome_progetto.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.docx`);
   };
 
+  // Export to PDF
+  const generatePDF = async () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Report Sicurezza Sul Lavoro', pageWidth / 2, 20, { align: 'center' });
+    
+    // Project info
+    doc.setFontSize(12);
+    doc.text(`Progetto: ${lavoro.nome_progetto}`, 14, 40);
+    doc.text(`Azienda: ${lavoro.nome_azienda_cliente}`, 14, 48);
+    doc.text(`Data: ${new Date().toLocaleDateString('it-IT')}`, 14, 56);
+    
+    // Summary
+    doc.setFontSize(14);
+    doc.text('Riepilogo', 14, 75);
+    doc.setFontSize(11);
+    doc.text(`Totale foto documentate: ${immaginiLavoro.length}`, 14, 85);
+    doc.text(`Analisi AI completate: ${immaginiConAnalisi.length}`, 14, 93);
+    
+    // Table with photos
+    const tableData = immaginiLavoro.map((img, idx) => {
+      const analisi = img.analisi_ai;
+      return [
+        `Evidenza ${idx + 1}`,
+        new Date(img.timestamp).toLocaleDateString('it-IT'),
+        img.descrizione_utente || 'Nessuna descrizione',
+        analisi?.livello_rischio.toUpperCase() || 'N/A',
+        analisi ? analisi.pericoli_identificati.join(', ') : 'N/A',
+        analisi ? analisi.raccomandazioni.join(', ') : 'N/A'
+      ];
+    });
+    
+    (doc as any).autoTable({
+      startY: 105,
+      head: [['Evidenza', 'Data', 'Descrizione', 'Rischio', 'Pericoli', 'Raccomandazioni']],
+      body: tableData,
+      headStyles: { fillColor: [59, 130, 246], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      styles: { fontSize: 9, cellPadding: 2 },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 40 },
+        3: { cellWidth: 20 },
+        4: { cellWidth: 35 },
+        5: { cellWidth: 35 }
+      }
+    });
+    
+    // Add images if requested
+    if (includeImages) {
+      for (let i = 0; i < immaginiLavoro.length; i++) {
+        const img = immaginiLavoro[i];
+        if (img.url_immagine) {
+          try {
+            // Add new page for each image
+            doc.addPage();
+            doc.setFontSize(14);
+            doc.text(`Evidenza ${i + 1}`, 14, 20);
+            
+            // Add image
+            const imgData = img.url_immagine.includes(',') 
+              ? img.url_immagine.split(',')[1] 
+              : img.url_immagine;
+            doc.addImage(imgData, 'JPEG', 14, 30, 180, 120);
+            
+            // Add analysis below image
+            if (img.analisi_ai) {
+              doc.setFontSize(11);
+              doc.text(`Livello Rischio: ${img.analisi_ai.livello_rischio.toUpperCase()}`, 14, 160);
+              doc.text('Analisi:', 14, 170);
+              const splitDescription = doc.splitTextToSize(img.analisi_ai.descrizione_dettagliata, 180);
+              doc.text(splitDescription, 14, 178);
+            }
+          } catch (e) {
+            console.error('Errore aggiunta immagine:', e);
+          }
+        }
+      }
+    }
+    
+    doc.save(`Report_${lavoro.nome_progetto.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   // Export to CSV
   const generateCSV = () => {
     const headers = ['Evidenza', 'Data', 'Descrizione', 'Livello Rischio', 'Pericoli', 'Raccomandazioni'];
@@ -458,6 +548,8 @@ export default function ReportPage() {
     try {
       if (formato === 'docx') {
         await generateDOCX();
+      } else if (formato === 'pdf') {
+        await generatePDF();
       } else if (formato === 'csv') {
         generateCSV();
       } else if (formato === 'xls') {
@@ -623,7 +715,7 @@ export default function ReportPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Formato</Label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant={formato === 'docx' ? 'default' : 'outline'}
                     size="sm"
@@ -631,6 +723,14 @@ export default function ReportPage() {
                     className="w-full"
                   >
                     DOCX
+                  </Button>
+                  <Button
+                    variant={formato === 'pdf' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFormato('pdf')}
+                    className="w-full"
+                  >
+                    PDF
                   </Button>
                   <Button
                     variant={formato === 'csv' ? 'default' : 'outline'}
@@ -651,7 +751,7 @@ export default function ReportPage() {
                 </div>
               </div>
 
-              {formato === 'docx' && (
+              {(formato === 'docx' || formato === 'pdf') && (
                 <div className="flex items-center space-x-2">
                   <Checkbox 
                     id="images" 
@@ -717,7 +817,7 @@ export default function ReportPage() {
         </Link>
         <Button 
           onClick={handleGenerate}
-          disabled={isGenerating || immaginiLavoro.length === 0 || (formato === 'docx' && immaginiSenzaAnalisi.length > 0)}
+          disabled={isGenerating || immaginiLavoro.length === 0 || ((formato === 'docx' || formato === 'pdf') && immaginiSenzaAnalisi.length > 0)}
           className="gap-2"
         >
           {isGenerating ? (
@@ -728,9 +828,10 @@ export default function ReportPage() {
           ) : (
             <>
               {formato === 'docx' && <FileText className="w-4 h-4" />}
+              {formato === 'pdf' && <FileText className="w-4 h-4 text-red-500" />}
               {formato === 'csv' && <Table className="w-4 h-4" />}
               {formato === 'xls' && <FileSpreadsheet className="w-4 h-4" />}
-              Scarica {formato === 'docx' ? 'DOCX' : formato === 'csv' ? 'CSV' : 'Excel'}
+              Scarica {formato === 'docx' ? 'DOCX' : formato === 'pdf' ? 'PDF' : formato === 'csv' ? 'CSV' : 'Excel'}
             </>
           )}
         </Button>
